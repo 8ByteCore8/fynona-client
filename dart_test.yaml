@@ -1,0 +1,3 @@
+tags:
+  golden:
+    # Pixel comparisons against test/goldens (rendered on Linux, as in CI).

@@ -1,0 +1,3 @@
+tags:
+  e2e:
+    # Needs a running server at FYNONA_API_URL; skipped without it.

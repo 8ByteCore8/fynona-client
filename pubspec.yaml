@@ -1,0 +1,34 @@
+name: fynona
+description: "Fynona: personal finance client (visualizes the Fynona API)."
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.14.0
+  flutter: ">=3.50.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  flutter_riverpod: ^3.5.0
+  fynona_api:
+    path: packages/fynona_api
+  fynona_ui:
+    path: packages/fynona_ui
+  go_router: ^18.1.4
+  intl: any
+  material_ui: ^1.11.1
+
+dev_dependencies:
+  analyzer: any
+  # Test fakes implement dio's HttpClientAdapter (the transport of fynona_api).
+  dio: any
+  flutter_lints: ^6.0.0
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  generate: true
+  uses-material-design: true

@@ -1,0 +1,10 @@
+include: package:lints/recommended.yaml
+
+# lib/src/gen is swagger_parser output (ADR-001): it stays analysed for errors
+# and warnings, but these style rules would only flag its generated idioms.
+linter:
+  rules:
+    no_leading_underscores_for_local_identifiers: false
+    prefer_is_not_operator: false
+    unnecessary_this: false
+    use_null_aware_elements: false

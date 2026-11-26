@@ -1,0 +1,28 @@
+name: fynona_ui
+description: "Fynona design system: brand A tokens, themes, glass chrome and shell components."
+version: 0.1.0
+publish_to: 'none'
+
+environment:
+  sdk: ^3.14.0
+  flutter: ">=3.50.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  material_ui: ^1.11.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: fonts/InterVariable.ttf
+        - asset: fonts/InterVariable-Italic.ttf
+          style: italic
+  assets:
+    - fonts/OFL.txt
