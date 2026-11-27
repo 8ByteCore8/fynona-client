@@ -28,6 +28,33 @@ void main() {
       },
     );
 
+    test('every request declares X-Fynona-API, unchanged on retries', () async {
+      final adapter = FakeAdapter([
+        status(503),
+        networkError(),
+        status(200, json: metaJson),
+      ]);
+      final t = fakeTransport(adapter);
+      await t.transport.call((a) => a.meta.getMeta());
+      await t.transport.dio.post<void>('/v1/things');
+      expect(adapter.requests, hasLength(4));
+      expect(
+        adapter.requests.map((r) => r.headers['X-Fynona-API']),
+        everyElement(contractVersion),
+      );
+      expect(
+        adapter.requests.map((r) => r.headers['User-Agent']),
+        everyElement('Fynona/1.2.3 (linux)'),
+      );
+    });
+
+    test('a request may declare another contract version', () async {
+      final adapter = FakeAdapter([status(200, json: metaJson)]);
+      final t = fakeTransport(adapter);
+      await t.transport.call((a) => a.meta.getMeta(xFynonaApi: '2.0.0'));
+      expect(adapter.requests.single.headers['X-Fynona-API'], '2.0.0');
+    });
+
     test('UUIDv7 starts with the millisecond timestamp', () {
       final id = UuidV7(now: () => DateTime.utc(2026, 11, 27)).next();
       expect(id, matches(uuidV7));
@@ -94,7 +121,7 @@ void main() {
       final adapter = FakeAdapter([
         status(
           426,
-          json: problemJson(426, 'client.upgrade_required'),
+          json: problemJson(426, 'api_version_unsupported'),
           contentType: 'application/problem+json; charset=utf-8',
         ),
       ]);
@@ -107,7 +134,7 @@ void main() {
                 'updateUrl',
                 'https://fynona.app/download',
               )
-              .having((e) => e.code, 'code', 'client.upgrade_required'),
+              .having((e) => e.code, 'code', 'api_version_unsupported'),
         ),
       );
     });

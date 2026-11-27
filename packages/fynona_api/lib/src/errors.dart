@@ -26,8 +26,10 @@ class ApiProblemException extends ApiException {
       'ApiProblemException($status $code, request_id $requestId)';
 }
 
-/// `426 Upgrade Required`: this client is older than the server's minimum for
-/// its platform (API-12). [updateUrl] says where to get a supported build.
+/// `426 Upgrade Required`: the contract version declared in `X-Fynona-API` is
+/// of another major or below the server's minimum (code
+/// `api_version_unsupported`, API-12). [updateUrl] says where to get a
+/// supported build.
 final class UpgradeRequiredException extends ApiProblemException {
   const UpgradeRequiredException(super.problem);
 
@@ -56,6 +58,17 @@ final class ApiNetworkException extends ApiException {
 
   @override
   String toString() => 'ApiNetworkException($cause)';
+}
+
+/// A contract version in `GET /v1/meta` is not SemVer (API-12): an error to
+/// report, not a reason to block the app.
+final class ContractVersionException extends ApiException {
+  const ContractVersionException(this.value);
+
+  final String value;
+
+  @override
+  String toString() => 'ContractVersionException($value is not SemVer)';
 }
 
 /// The circuit breaker of [group] is open: the call failed without being

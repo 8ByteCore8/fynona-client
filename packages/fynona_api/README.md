@@ -22,7 +22,7 @@ re-serializes as `"-100.00"`. No money, quantity, rate or price is ever a `doubl
 
 | Rule | Value |
 |---|---|
-| Headers | `X-Request-ID` (UUIDv7), `User-Agent: Fynona/<version> (<platform>)`; `Idempotency-Key` (UUIDv7) on POST/PUT/PATCH/DELETE, reused on every retry |
+| Headers | `X-Request-ID` (UUIDv7), `User-Agent: Fynona/<version> (<platform>)`, `X-Fynona-API: <contractVersion>` (API-12); `Idempotency-Key` (UUIDv7) on POST/PUT/PATCH/DELETE, reused on every retry |
 | Retry (API-60, API-61) | GET and requests with `Idempotency-Key`; network errors, 408, 429, 502, 503, 504; `Retry-After` (seconds) wins, else full jitter base 200 ms, cap 10 s; at most 3 retries |
 | Retry budget (API-62) | retries ≤ 10 % of primary requests in a 60 s window, reserve of 3 |
 | Circuit breaker (API-63) | per group (first two path segments, e.g. `v1/meta`): opens above 50 % failures over ≥ 10 outcomes in 30 s; one probe after 15 s |
@@ -30,14 +30,30 @@ re-serializes as `"-100.00"`. No money, quantity, rate or price is ever a `doubl
 
 `ApiTransport.call` throws typed `ApiException`s: `ApiProblemException` (`code`,
 `requestId`), `UpgradeRequiredException` (426, `updateUrl`), `ApiHttpException`,
-`ApiNetworkException`, `CircuitOpenException`. `isOffline` and `offlineChanges`
-report whether any breaker is not closed.
+`ApiNetworkException`, `CircuitOpenException`, `ContractVersionException`. `isOffline`
+and `offlineChanges` report whether any breaker is not closed.
+
+## Contract version (API-12)
+
+`contractVersion` (`lib/src/contract.dart`) is `info.version` of `api/openapi.yaml`,
+taken from the generated `FynonaApi.apiVersion`; regenerating after a spec change
+updates it. `ApiTransport.checkContract()` reads `GET /v1/meta` and returns a
+`ContractCompatibility`:
+
+| Verdict | When |
+|---|---|
+| `compatible` | same major, client ≥ `min_contract_version`, server minor ≥ client minor |
+| `clientOutdated` | another major, client < `min_contract_version` (full SemVer), `/v1/meta` 404 or 410, `426 api_version_unsupported` |
+| `serverBehind` | same major, server minor < client minor (rollback or deploy in progress) |
+
+A `contract_version` that is not SemVer throws `ContractVersionException`.
+`contractRejections` emits every `426 api_version_unsupported` on any route.
 
 ## Tests
 
 ```sh
 dart test                                            # unit tests; the e2e is skipped
-FYNONA_API_URL=http://127.0.0.1:8080 dart test       # plus GET /v1/meta against a server
+FYNONA_API_URL=http://127.0.0.1:8080 dart test       # plus the contract checks against a server
 ```
 
 The server README («Sandbox against a local PostgreSQL») shows how to run one.

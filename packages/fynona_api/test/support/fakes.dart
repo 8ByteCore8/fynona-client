@@ -70,11 +70,13 @@ Responder networkError() =>
       reason: 'fake connection refused',
     );
 
+/// `GET /v1/meta` of a server that serves this client's contract.
 const metaJson = <String, Object?>{
   'server_version': '0.1.0',
   'api_version': 'v1',
+  'contract_version': contractVersion,
+  'min_contract_version': '1.0.0',
   'environment': 'sandbox',
-  'min_client_versions': {'android': '1.0.0'},
   'features': {'demo': true},
   'update_url': 'https://fynona.app/download',
 };
@@ -122,6 +124,7 @@ fakeTransport(
   CircuitBreaker Function(void Function(CircuitState))? breakerFactory,
   FakeClock? clock,
   double random = 0.5,
+  String declaredContractVersion = contractVersion,
 }) {
   final fakeClock = clock ?? FakeClock();
   final sleeps = <Duration>[];
@@ -129,6 +132,7 @@ fakeTransport(
     baseUrl: 'https://api.test',
     clientVersion: '1.2.3',
     platform: 'linux',
+    declaredContractVersion: declaredContractVersion,
     adapter: adapter,
     retryBudget: budget ?? RetryBudget(now: fakeClock.now),
     breakerFactory: breakerFactory,
@@ -141,3 +145,10 @@ fakeTransport(
   );
   return (transport: transport, sleeps: sleeps, clock: fakeClock);
 }
+
+/// `GET /v1/meta` serving contract [server] with minimum [minimum].
+Map<String, Object?> metaWith({required String server, String? minimum}) => {
+  ...metaJson,
+  'contract_version': server,
+  'min_contract_version': minimum ?? '${server.split('.').first}.0.0',
+};

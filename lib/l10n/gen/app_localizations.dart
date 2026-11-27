@@ -285,6 +285,42 @@ abstract class AppLocalizations {
   /// In uk, this message translates to:
   /// **'Немає звʼязку з сервером'**
   String get connectionLost;
+
+  /// Title of the blocking screen when the API contract of the app is no longer supported (API-12)
+  ///
+  /// In uk, this message translates to:
+  /// **'Застосунок застарів'**
+  String get appOutdatedTitle;
+
+  /// Body of the blocking «update the app» screen
+  ///
+  /// In uk, this message translates to:
+  /// **'Оновіть застосунок, щоб продовжити роботу.'**
+  String get appOutdatedMessage;
+
+  /// Web only: button that reloads the page to get the new version
+  ///
+  /// In uk, this message translates to:
+  /// **'Перезавантажити'**
+  String get appOutdatedReload;
+
+  /// Title of the blocking screen when the server runs an older contract minor (rollback or deploy)
+  ///
+  /// In uk, this message translates to:
+  /// **'Сервіс оновлюється'**
+  String get serverBehindTitle;
+
+  /// Body of the blocking «service is updating» screen; never asks to update the app
+  ///
+  /// In uk, this message translates to:
+  /// **'Спробуйте пізніше.'**
+  String get serverBehindMessage;
+
+  /// Button that checks the server versions again
+  ///
+  /// In uk, this message translates to:
+  /// **'Спробувати ще раз'**
+  String get serverBehindRetry;
 }
 
 class _AppLocalizationsDelegate

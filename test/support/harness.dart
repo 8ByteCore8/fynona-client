@@ -2,12 +2,19 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fynona/api/api.dart';
 import 'package:fynona/app.dart';
 import 'package:fynona/shell/app_shell.dart';
 import 'package:fynona/shell/router.dart';
+import 'package:fynona_api/fynona_api.dart';
 import 'package:material_ui/material_ui.dart';
 
+import 'api_fakes.dart';
+
 /// Pumps the whole app at a logical [size] (dpr 1) and [textScale].
+///
+/// The API goes to [transport]; by default a fake server that serves this
+/// build's contract, so no test reaches the network.
 Future<void> pumpApp(
   WidgetTester tester, {
   Size size = const Size(390, 844),
@@ -15,6 +22,7 @@ Future<void> pumpApp(
   String initialLocation = overviewPath,
   List<Locale> locales = const [Locale('uk')],
   List<Override> overrides = const [],
+  ApiTransport? transport,
   bool settle = true,
 }) async {
   tester.view.physicalSize = size;
@@ -26,7 +34,12 @@ Future<void> pumpApp(
   addTearDown(tester.platformDispatcher.clearLocalesTestValue);
   await tester.pumpWidget(
     ProviderScope(
-      overrides: overrides,
+      overrides: [
+        apiTransportProvider.overrideWithValue(
+          transport ?? fakeApiTransport(ScriptedAdapter(meta())),
+        ),
+        ...overrides,
+      ],
       child: FynonaApp(initialLocation: initialLocation),
     ),
   );

@@ -106,4 +106,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get connectionLost => 'No connection to the server';
+
+  @override
+  String get appOutdatedTitle => 'The app is out of date';
+
+  @override
+  String get appOutdatedMessage => 'Update the app to keep using it.';
+
+  @override
+  String get appOutdatedReload => 'Reload';
+
+  @override
+  String get serverBehindTitle => 'The service is updating';
+
+  @override
+  String get serverBehindMessage => 'Please try again later.';
+
+  @override
+  String get serverBehindRetry => 'Try again';
 }

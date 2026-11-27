@@ -36,6 +36,14 @@ flutter build web --dart-define=FYNONA_API_URL=https://…   # or linux, apk, io
 Without `FYNONA_API_URL` the app calls its own origin. While a circuit breaker of
 the transport is open, the shell shows a «no connection» banner.
 
+On start and on every resume the app compares its contract version with
+`GET /v1/meta` (API-12, `lib/api/contract.dart`). An outdated client (another
+major, below `min_contract_version`, `/v1/meta` 404 or 410, any
+`426 api_version_unsupported`) gets a blocking «update the app» screen, with a
+reload button on web; a server whose contract minor is behind the client's gets a
+blocking «the service is updating» screen with a retry button. No connection or a
+malformed server version never blocks.
+
 Goldens are rendered on Linux; refresh them after a deliberate visual change with
 `flutter test --update-goldens test/golden_test.dart`.
 

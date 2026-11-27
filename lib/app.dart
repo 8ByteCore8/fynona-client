@@ -4,8 +4,10 @@ import 'package:fynona_ui/fynona_ui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
+import 'api/contract.dart';
 import 'l10n/gen/app_localizations.dart';
 import 'settings/appearance.dart';
+import 'shell/contract_gate.dart';
 import 'shell/router.dart';
 
 const supportedLanguages = ['uk', 'ru', 'en'];
@@ -34,8 +36,21 @@ class _FynonaAppState extends ConsumerState<FynonaApp> {
     initialLocation: widget.initialLocation,
   );
 
+  /// Checks the API contract again on every return from the background
+  /// (API-12); the first check runs when [contractStatusProvider] starts.
+  late final AppLifecycleListener _lifecycle;
+
+  @override
+  void initState() {
+    super.initState();
+    _lifecycle = AppLifecycleListener(
+      onResume: () => ref.read(contractStatusProvider.notifier).check(),
+    );
+  }
+
   @override
   void dispose() {
+    _lifecycle.dispose();
     _router.dispose();
     super.dispose();
   }
@@ -70,7 +85,7 @@ class _FynonaAppState extends ConsumerState<FynonaApp> {
             noGlass: appearance.noGlass,
             blurSupported: ref.watch(blurSupportedProvider),
           ),
-          child: GlassAutoDegrade(child: child!),
+          child: ContractGate(child: GlassAutoDegrade(child: child!)),
         ),
       ),
     );

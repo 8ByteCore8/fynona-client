@@ -36,10 +36,7 @@ void main() {
       adapter: _DownAdapter(),
       sleep: (_) async {},
     );
-    await pumpApp(
-      tester,
-      overrides: [apiTransportProvider.overrideWithValue(transport)],
-    );
+    await pumpApp(tester, transport: transport);
     expect(find.byKey(connectionBannerKey), findsNothing);
 
     await tester.runAsync(() async {

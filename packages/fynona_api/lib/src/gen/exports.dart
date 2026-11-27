@@ -6,6 +6,5 @@ export 'meta/meta_client.dart';
 export 'meta/models/environment.dart';
 export 'meta/models/field_error.dart';
 export 'meta/models/meta.dart';
-export 'meta/models/platform.dart';
 export 'meta/models/problem.dart';
 export 'models/money.dart';

@@ -106,4 +106,23 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get connectionLost => 'Нет связи с сервером';
+
+  @override
+  String get appOutdatedTitle => 'Приложение устарело';
+
+  @override
+  String get appOutdatedMessage =>
+      'Обновите приложение, чтобы продолжить работу.';
+
+  @override
+  String get appOutdatedReload => 'Перезагрузить';
+
+  @override
+  String get serverBehindTitle => 'Сервис обновляется';
+
+  @override
+  String get serverBehindMessage => 'Попробуйте позже.';
+
+  @override
+  String get serverBehindRetry => 'Повторить';
 }

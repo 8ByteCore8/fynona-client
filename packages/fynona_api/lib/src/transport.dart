@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 
 import 'circuit_breaker.dart';
+import 'contract.dart';
 import 'errors.dart';
 import 'gen/fynona_api.dart';
 import 'retry.dart';
@@ -25,14 +26,16 @@ String endpointGroup(Uri uri) =>
 
 /// The Fynona API client: generated [api] over a resilient [dio] (API-60…64).
 ///
-/// Every request gets `X-Request-ID` and `User-Agent`, mutating requests an
-/// `Idempotency-Key` that is reused on every retry (API-20, API-21). Use
-/// [call] to get typed [ApiException]s instead of `DioException`.
+/// Every request gets `X-Request-ID`, `User-Agent` and `X-Fynona-API`,
+/// mutating requests an `Idempotency-Key`; all of them are reused on every
+/// retry (API-12, API-20, API-21). Use [call] to get typed [ApiException]s
+/// instead of `DioException`.
 final class ApiTransport {
   ApiTransport({
     required String baseUrl,
     required String clientVersion,
     required String platform,
+    String declaredContractVersion = contractVersion,
     HttpClientAdapter? adapter,
     RetryPolicy retryPolicy = const RetryPolicy(),
     RetryBudget? retryBudget,
@@ -47,6 +50,7 @@ final class ApiTransport {
     _adapter = ResilientAdapter(
       adapter ?? HttpClientAdapter(),
       userAgent: 'Fynona/$clientVersion ($platform)',
+      contractVersion: declaredContractVersion,
       retryPolicy: retryPolicy,
       retryBudget: retryBudget ?? RetryBudget(now: clock),
       breakerFactory:
@@ -64,10 +68,24 @@ final class ApiTransport {
         receiveTimeout: readTimeout,
       ),
     )..httpClientAdapter = _adapter;
+    dio.interceptors.add(
+      InterceptorsWrapper(
+        onError: (error, handler) {
+          final exception = apiExceptionOf(error);
+          if (exception is UpgradeRequiredException &&
+              exception.code == apiVersionUnsupportedCode &&
+              !_rejected.isClosed) {
+            _rejected.add(exception);
+          }
+          handler.next(error);
+        },
+      ),
+    );
     api = FynonaApi(dio);
   }
 
   late final ResilientAdapter _adapter;
+  final _rejected = StreamController<UpgradeRequiredException>.broadcast();
 
   /// The underlying HTTP client; its adapter is the resilient one.
   late final Dio dio;
@@ -90,7 +108,45 @@ final class ApiTransport {
   /// Emits [isOffline] whenever it changes.
   Stream<bool> get offlineChanges => _adapter.offlineChanges;
 
-  void close() => dio.close(force: true);
+  /// Every `426 api_version_unsupported` the server answers, on any route:
+  /// this client is outdated (API-12).
+  Stream<UpgradeRequiredException> get contractRejections => _rejected.stream;
+
+  /// Reads `GET /v1/meta` and decides whether this client's contract version
+  /// works with the server (API-12). `404` or `410` on that route and a `426`
+  /// with code `api_version_unsupported` mean the client is outdated. Other
+  /// failures throw their [ApiException]; a server version that is not SemVer
+  /// throws [ContractVersionException].
+  Future<ContractCompatibility> checkContract() async {
+    try {
+      final meta = await call((api) => api.meta.getMeta());
+      return checkCompatibility(
+        client: _adapter.contractVersion,
+        server: meta.contractVersion,
+        minimum: meta.minContractVersion,
+      );
+    } on UpgradeRequiredException catch (error) {
+      if (error.code == apiVersionUnsupportedCode) {
+        return ContractCompatibility.clientOutdated;
+      }
+      rethrow;
+    } on ApiException catch (error) {
+      final status = switch (error) {
+        ApiProblemException(:final status) => status,
+        ApiHttpException(:final status) => status,
+        _ => null,
+      };
+      if (status == 404 || status == 410) {
+        return ContractCompatibility.clientOutdated;
+      }
+      rethrow;
+    }
+  }
+
+  void close() {
+    _rejected.close();
+    dio.close(force: true);
+  }
 }
 
 /// Maps a dio failure to the typed error of the API (API-12, API-30).
@@ -126,6 +182,7 @@ final class ResilientAdapter implements HttpClientAdapter {
   ResilientAdapter(
     this.inner, {
     required this.userAgent,
+    required this.contractVersion,
     required this.retryPolicy,
     required this.retryBudget,
     required this._breakerFactory,
@@ -136,6 +193,9 @@ final class ResilientAdapter implements HttpClientAdapter {
 
   final HttpClientAdapter inner;
   final String userAgent;
+
+  /// Value of `X-Fynona-API` unless the request already declares one.
+  final String contractVersion;
   final RetryPolicy retryPolicy;
   final RetryBudget retryBudget;
   final CircuitBreaker Function(void Function(CircuitState)) _breakerFactory;
@@ -227,6 +287,9 @@ final class ResilientAdapter implements HttpClientAdapter {
         headers.keys.any((key) => key.toLowerCase() == name);
     if (!has('x-request-id')) headers['X-Request-ID'] = _uuid.next();
     headers['User-Agent'] = userAgent;
+    if (!has(contractVersionHeader.toLowerCase())) {
+      headers[contractVersionHeader] = contractVersion;
+    }
     if (_mutatingMethods.contains(options.method.toUpperCase()) &&
         !has(idempotencyKeyHeader)) {
       headers['Idempotency-Key'] = _uuid.next();
