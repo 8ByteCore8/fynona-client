@@ -5,7 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fynona/api/api.dart';
 import 'package:fynona/shell/connection_banner.dart';
-import 'package:fynona_api/fynona_api.dart';
+import 'package:fynona_api/fynona_api.dart' hide Locale, Theme;
 
 import 'support/harness.dart';
 

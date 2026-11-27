@@ -3,7 +3,7 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:fynona/api/api.dart';
-import 'package:fynona_api/fynona_api.dart';
+import 'package:fynona_api/fynona_api.dart' hide Locale, Theme;
 
 /// Answers every request with [respond] and counts the requests.
 final class ScriptedAdapter implements HttpClientAdapter {

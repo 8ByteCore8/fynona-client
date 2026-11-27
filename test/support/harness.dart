@@ -4,9 +4,10 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fynona/api/api.dart';
 import 'package:fynona/app.dart';
+import 'package:fynona/auth/auth.dart';
 import 'package:fynona/shell/app_shell.dart';
 import 'package:fynona/shell/router.dart';
-import 'package:fynona_api/fynona_api.dart';
+import 'package:fynona_api/fynona_api.dart' hide Locale, Theme;
 import 'package:material_ui/material_ui.dart';
 
 import 'api_fakes.dart';
@@ -15,6 +16,11 @@ import 'api_fakes.dart';
 ///
 /// The API goes to [transport]; by default a fake server that serves this
 /// build's contract, so no test reaches the network.
+///
+/// [signedIn] starts with an open session without asking the server; false
+/// runs the real session restore against [transport] with [store] (empty by
+/// default, so the app starts signed out). The refresh token never reaches
+/// the platform's secret store in tests.
 Future<void> pumpApp(
   WidgetTester tester, {
   Size size = const Size(390, 844),
@@ -24,6 +30,8 @@ Future<void> pumpApp(
   List<Override> overrides = const [],
   ApiTransport? transport,
   bool settle = true,
+  bool signedIn = true,
+  RefreshTokenStore? store,
 }) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
@@ -38,6 +46,12 @@ Future<void> pumpApp(
         apiTransportProvider.overrideWithValue(
           transport ?? fakeApiTransport(ScriptedAdapter(meta())),
         ),
+        refreshTokenStoreProvider.overrideWithValue(
+          store ?? MemoryRefreshTokenStore(),
+        ),
+        tokenModeProvider.overrideWithValue(TokenMode.body),
+        if (signedIn)
+          authStateProvider.overrideWithBuild((ref, _) => AuthState.signedIn),
         ...overrides,
       ],
       child: FynonaApp(initialLocation: initialLocation),

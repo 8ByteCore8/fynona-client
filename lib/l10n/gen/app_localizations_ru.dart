@@ -125,4 +125,148 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get serverBehindRetry => 'Повторить';
+
+  @override
+  String get authEmail => 'Электронная почта';
+
+  @override
+  String get authPassword => 'Пароль';
+
+  @override
+  String get authNewPassword => 'Новый пароль (не меньше 8 символов)';
+
+  @override
+  String get authSignInTitle => 'Вход';
+
+  @override
+  String get authSignInAction => 'Войти';
+
+  @override
+  String get authSignUpTitle => 'Регистрация';
+
+  @override
+  String get authSignUpAction => 'Зарегистрироваться';
+
+  @override
+  String get authToSignUp => 'Нет аккаунта? Зарегистрироваться';
+
+  @override
+  String get authToSignIn => 'Уже есть аккаунт? Войти';
+
+  @override
+  String get authBackToSignIn => 'Ко входу';
+
+  @override
+  String get authForgotPassword => 'Забыли пароль?';
+
+  @override
+  String get authPasskeySignIn => 'Войти с ключом доступа';
+
+  @override
+  String get authPasskeyFailed => 'Не удалось войти с ключом доступа';
+
+  @override
+  String get authInvalidCredentials => 'Неверная почта или пароль';
+
+  @override
+  String get authEmailUnverified =>
+      'Сначала подтвердите почту по ссылке из письма';
+
+  @override
+  String get authAccountBlocked =>
+      'Аккаунт заблокирован. Обратитесь в поддержку';
+
+  @override
+  String get authRateLimited => 'Слишком много попыток. Попробуйте позже';
+
+  @override
+  String get authNetworkError => 'Нет связи с сервером. Попробуйте ещё раз';
+
+  @override
+  String get authUnknownError => 'Что-то пошло не так. Попробуйте ещё раз';
+
+  @override
+  String get authEmailInvalid => 'Введите адрес почты';
+
+  @override
+  String get authPasswordRequired => 'Введите пароль';
+
+  @override
+  String get authPasswordTooShort => 'Не меньше 8 символов';
+
+  @override
+  String get authVerifyPendingTitle => 'Проверьте почту';
+
+  @override
+  String authVerifyPendingMessage(String email) {
+    return 'Мы отправили письмо на $email. Перейдите по ссылке в нём, чтобы завершить регистрацию.';
+  }
+
+  @override
+  String get authVerifyPendingHint =>
+      'Письма нет? Проверьте входящие и папку «Спам» или вернитесь и зарегистрируйтесь ещё раз.';
+
+  @override
+  String get authSignUpAgain => 'Зарегистрироваться ещё раз';
+
+  @override
+  String get authVerifyTitle => 'Подтверждение почты';
+
+  @override
+  String get authVerifyDone => 'Почта подтверждена. Теперь можно войти';
+
+  @override
+  String get authLinkInvalid => 'Ссылка недействительна или устарела';
+
+  @override
+  String get authForgotTitle => 'Восстановление пароля';
+
+  @override
+  String get authForgotSend => 'Отправить ссылку';
+
+  @override
+  String get authForgotSent =>
+      'Если аккаунт с этой почтой существует, мы отправили на неё ссылку для нового пароля.';
+
+  @override
+  String get authResetTitle => 'Новый пароль';
+
+  @override
+  String get authResetAction => 'Сохранить пароль';
+
+  @override
+  String get authResetDone => 'Пароль изменён. Войдите с новым паролем';
+
+  @override
+  String get authMfaTitle => 'Подтверждение входа';
+
+  @override
+  String get authMfaCode => 'Код из приложения аутентификации';
+
+  @override
+  String get authMfaRecoveryCode => 'Резервный код';
+
+  @override
+  String get authMfaUseRecovery => 'Использовать резервный код';
+
+  @override
+  String get authMfaUseCode => 'Использовать код из приложения';
+
+  @override
+  String get authMfaCodeInvalid => 'Введите 6 цифр';
+
+  @override
+  String get authMfaInvalid => 'Неверный код';
+
+  @override
+  String get authMfaExpired => 'Время вышло. Войдите ещё раз';
+
+  @override
+  String get authMfaAction => 'Подтвердить';
+
+  @override
+  String get authLoading => 'Восстановление сессии';
+
+  @override
+  String get authSignOut => 'Выйти';
 }

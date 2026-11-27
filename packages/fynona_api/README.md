@@ -33,6 +33,25 @@ re-serializes as `"-100.00"`. No money, quantity, rate or price is ever a `doubl
 `ApiNetworkException`, `CircuitOpenException`, `ContractVersionException`. `isOffline`
 and `offlineChanges` report whether any breaker is not closed.
 
+`Idempotency-Key` is left out on the routes exempt from API-20: every `/v1/auth/*`
+route, `DELETE /v1/me` and `POST /v1/me/email` (`takesNoIdempotencyKey`); like any
+POST without a key, they are never retried.
+
+## Session (SEC-4, SEC-5)
+
+`AuthSession` (`lib/src/auth.dart`) runs over a transport: `login` returns
+`SignedIn` or `MfaRequired` (the `202` challenge, finished by `completeMfa` with a
+TOTP or recovery code), `loginWithPasskey`, `restore`, `refresh`, `logout`. It adds
+`Authorization: Bearer` to authenticated requests; a `401` refreshes once (single
+flight) and repeats the request. A refused refresh (any 4xx but 408, 426, 429)
+signs out; a refresh without a connection keeps the session. `TokenMode.body` keeps
+the refresh token in a `RefreshTokenStore`; `TokenMode.cookie` (web) asks for
+`token_delivery: cookie`, sends every request with browser credentials and never
+sees the refresh token; there `logout` without an access token in memory trades
+the cookie for one first, so the server clears the cookie. A store that fails on
+read or clear still ends `restore` signed out; a store that fails on write keeps
+no access token, closes the new server session best-effort and rethrows.
+
 ## Contract version (API-12)
 
 `contractVersion` (`lib/src/contract.dart`) is `info.version` of `api/openapi.yaml`,
@@ -54,6 +73,10 @@ A `contract_version` that is not SemVer throws `ContractVersionException`.
 ```sh
 dart test                                            # unit tests; the e2e is skipped
 FYNONA_API_URL=http://127.0.0.1:8080 dart test       # plus the contract checks against a server
+FYNONA_API_URL=http://127.0.0.1:8080 FYNONA_SERVER_LOG=server.log dart test   # plus the auth flow
 ```
+
+The auth e2e (`test/e2e_auth_test.dart`) reads the verification link from the
+server log, where the sandbox mailer writes every message.
 
 The server README («Sandbox against a local PostgreSQL») shows how to run one.

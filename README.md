@@ -44,6 +44,26 @@ reload button on web; a server whose contract minor is behind the client's gets 
 blocking «the service is updating» screen with a retry button. No connection or a
 malformed server version never blocks.
 
+## Sign-in (SEC-1…SEC-5)
+
+`lib/auth/` holds the session, `lib/screens/auth/` the screens: sign up, «check
+your email» (no resend: the API has no route for it, so the screen points to the
+spam folder and a new sign-up), the emailed links (`/verify-email?token=…`,
+`/reset-password?token=…`), forgot password, sign in, the second factor (a sign-in
+with TOTP on answers `202`; a TOTP or recovery code completes it through
+`POST /v1/auth/login/mfa`) and passkey sign-in on web. A wrong email and a wrong
+password read the same. The router guard (`lib/shell/router.dart`) shows only these
+routes while signed out and the app shell once signed in; on start the app resumes
+the saved session before deciding.
+
+Tokens: on Android, iOS, macOS, Windows and Linux the refresh token lives in
+`flutter_secure_storage` (Linux builds need `libsecret-1-dev`); on web the server
+keeps it in the httpOnly `fynona_refresh` cookie and the access token stays only in
+memory, so the API must be on the same site as the web app and allow its origin.
+A `401` refreshes the tokens once (parallel requests share one refresh) and repeats
+the request; a refused refresh signs out. Signing out (Ще) ends the session on the
+server and clears the stored token, the in-memory token and the cached account.
+
 Goldens are rendered on Linux; refresh them after a deliberate visual change with
 `flutter test --update-goldens test/golden_test.dart`.
 

@@ -2,8 +2,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fynona_ui/fynona_ui.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../auth/auth.dart';
 import '../l10n/gen/app_localizations.dart';
 import '../settings/appearance.dart';
+
+/// Key of the sign-out entry.
+const signOutKey = ValueKey('more-sign-out');
 
 /// Ще (CLI-12): section entries (placeholders) and the appearance switches.
 class MoreScreen extends ConsumerWidget {
@@ -84,6 +88,12 @@ class MoreScreen extends ConsumerWidget {
               title: Text(l.settingsHighContrast),
               value: appearance.highContrast,
               onChanged: ref.read(appearanceProvider.notifier).setHighContrast,
+            ),
+            ListTile(
+              key: signOutKey,
+              leading: const Icon(Icons.logout_rounded),
+              title: Text(l.authSignOut),
+              onTap: ref.read(authStateProvider.notifier).signOut,
             ),
           ],
         ),

@@ -159,5 +159,194 @@
   "serverBehindRetry": "Спробувати ще раз",
   "@serverBehindRetry": {
     "description": "Button that checks the server versions again"
+  },
+  "authEmail": "Електронна пошта",
+  "@authEmail": {
+    "description": "Field label: email address."
+  },
+  "authPassword": "Пароль",
+  "@authPassword": {
+    "description": "Field label: password."
+  },
+  "authNewPassword": "Новий пароль (щонайменше 8 символів)",
+  "@authNewPassword": {
+    "description": "Field label: a new password (at least 8 characters)."
+  },
+  "authSignInTitle": "Вхід",
+  "@authSignInTitle": {
+    "description": "Title of the sign-in screen."
+  },
+  "authSignInAction": "Увійти",
+  "@authSignInAction": {
+    "description": "Button: sign in with email and password."
+  },
+  "authSignUpTitle": "Реєстрація",
+  "@authSignUpTitle": {
+    "description": "Title of the sign-up screen."
+  },
+  "authSignUpAction": "Зареєструватися",
+  "@authSignUpAction": {
+    "description": "Button: create the account."
+  },
+  "authToSignUp": "Немає акаунта? Зареєструватися",
+  "@authToSignUp": {
+    "description": "Link from sign-in to sign-up."
+  },
+  "authToSignIn": "Уже маєте акаунт? Увійти",
+  "@authToSignIn": {
+    "description": "Link back to the sign-in screen."
+  },
+  "authBackToSignIn": "До входу",
+  "@authBackToSignIn": {
+    "description": "Button back to the sign-in screen."
+  },
+  "authForgotPassword": "Забули пароль?",
+  "@authForgotPassword": {
+    "description": "Link to the password reset request."
+  },
+  "authPasskeySignIn": "Увійти з ключем доступу",
+  "@authPasskeySignIn": {
+    "description": "Button: sign in with a passkey (web)."
+  },
+  "authPasskeyFailed": "Не вдалося увійти з ключем доступу",
+  "@authPasskeyFailed": {
+    "description": "Error: the passkey sign-in was cancelled or refused."
+  },
+  "authInvalidCredentials": "Неправильна пошта або пароль",
+  "@authInvalidCredentials": {
+    "description": "Error: wrong email or password; the same text whether or not the email exists."
+  },
+  "authEmailUnverified": "Спершу підтвердіть пошту за посиланням з листа",
+  "@authEmailUnverified": {
+    "description": "Error: the email address is not confirmed yet."
+  },
+  "authAccountBlocked": "Акаунт заблоковано. Зверніться до підтримки",
+  "@authAccountBlocked": {
+    "description": "Error: the account is blocked."
+  },
+  "authRateLimited": "Забагато спроб. Спробуйте пізніше",
+  "@authRateLimited": {
+    "description": "Error: too many attempts, wait and retry."
+  },
+  "authNetworkError": "Немає звʼязку з сервером. Спробуйте ще раз",
+  "@authNetworkError": {
+    "description": "Error: no connection to the server."
+  },
+  "authUnknownError": "Щось пішло не так. Спробуйте ще раз",
+  "@authUnknownError": {
+    "description": "Error: anything else."
+  },
+  "authEmailInvalid": "Введіть адресу пошти",
+  "@authEmailInvalid": {
+    "description": "Validation: not an email address."
+  },
+  "authPasswordRequired": "Введіть пароль",
+  "@authPasswordRequired": {
+    "description": "Validation: empty password."
+  },
+  "authPasswordTooShort": "Щонайменше 8 символів",
+  "@authPasswordTooShort": {
+    "description": "Validation: password under 8 characters."
+  },
+  "authVerifyPendingTitle": "Перевірте пошту",
+  "@authVerifyPendingTitle": {
+    "description": "Title: the confirmation email is on its way."
+  },
+  "authVerifyPendingMessage": "Ми надіслали лист на {email}. Перейдіть за посиланням у ньому, щоб завершити реєстрацію.",
+  "@authVerifyPendingMessage": {
+    "description": "Body after sign-up; the same text whether or not the email was already registered.",
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "authVerifyPendingHint": "Листа немає? Перевірте вхідні та теку «Спам» або поверніться й зареєструйтеся ще раз.",
+  "@authVerifyPendingHint": {
+    "description": "Hint under «check your email»: the app cannot resend the email, so the user checks spam or signs up again."
+  },
+  "authSignUpAgain": "Зареєструватися ще раз",
+  "@authSignUpAgain": {
+    "description": "Button: back to the sign-up form to register again."
+  },
+  "authVerifyTitle": "Підтвердження пошти",
+  "@authVerifyTitle": {
+    "description": "Title of the email confirmation screen."
+  },
+  "authVerifyDone": "Пошту підтверджено. Тепер можна увійти",
+  "@authVerifyDone": {
+    "description": "Message: the email is confirmed."
+  },
+  "authLinkInvalid": "Посилання недійсне або застаріло",
+  "@authLinkInvalid": {
+    "description": "Error: the emailed link is used, expired or wrong."
+  },
+  "authForgotTitle": "Відновлення пароля",
+  "@authForgotTitle": {
+    "description": "Title of the password reset request screen."
+  },
+  "authForgotSend": "Надіслати посилання",
+  "@authForgotSend": {
+    "description": "Button: email a password reset link."
+  },
+  "authForgotSent": "Якщо акаунт з цією поштою існує, ми надіслали на неї посилання для нового пароля.",
+  "@authForgotSent": {
+    "description": "Message after a reset request; the same text whether or not the email exists."
+  },
+  "authResetTitle": "Новий пароль",
+  "@authResetTitle": {
+    "description": "Title of the new password screen."
+  },
+  "authResetAction": "Зберегти пароль",
+  "@authResetAction": {
+    "description": "Button: save the new password."
+  },
+  "authResetDone": "Пароль змінено. Увійдіть з новим паролем",
+  "@authResetDone": {
+    "description": "Message: the password is changed."
+  },
+  "authMfaTitle": "Підтвердження входу",
+  "@authMfaTitle": {
+    "description": "Title of the second-factor screen."
+  },
+  "authMfaCode": "Код із застосунку автентифікації",
+  "@authMfaCode": {
+    "description": "Field label: six-digit code from the authenticator app."
+  },
+  "authMfaRecoveryCode": "Резервний код",
+  "@authMfaRecoveryCode": {
+    "description": "Field label: a recovery code."
+  },
+  "authMfaUseRecovery": "Використати резервний код",
+  "@authMfaUseRecovery": {
+    "description": "Link: enter a recovery code instead."
+  },
+  "authMfaUseCode": "Використати код із застосунку",
+  "@authMfaUseCode": {
+    "description": "Link: enter an authenticator code instead."
+  },
+  "authMfaCodeInvalid": "Введіть 6 цифр",
+  "@authMfaCodeInvalid": {
+    "description": "Validation: the code is not six digits."
+  },
+  "authMfaInvalid": "Неправильний код",
+  "@authMfaInvalid": {
+    "description": "Error: wrong or used code."
+  },
+  "authMfaExpired": "Час вийшов. Увійдіть ще раз",
+  "@authMfaExpired": {
+    "description": "Error: the second-factor step expired; sign in again."
+  },
+  "authMfaAction": "Підтвердити",
+  "@authMfaAction": {
+    "description": "Button: confirm the code."
+  },
+  "authLoading": "Відновлення сесії",
+  "@authLoading": {
+    "description": "Screen-reader label while the saved session is resumed."
+  },
+  "authSignOut": "Вийти",
+  "@authSignOut": {
+    "description": "Button: sign out on this device."
   }
 }

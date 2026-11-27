@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fynona_api/fynona_api.dart';
+import 'package:fynona_api/fynona_api.dart' hide Locale, Theme;
 
 /// App version sent in `User-Agent` (API-12); equals `version` in pubspec.yaml
 /// without the build number (a test keeps them in step).

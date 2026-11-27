@@ -5,6 +5,7 @@ include: package:lints/recommended.yaml
 linter:
   rules:
     no_leading_underscores_for_local_identifiers: false
+    prefer_interpolation_to_compose_strings: false
     prefer_is_not_operator: false
     unnecessary_this: false
     use_null_aware_elements: false

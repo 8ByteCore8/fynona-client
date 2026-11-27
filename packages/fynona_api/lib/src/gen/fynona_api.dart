@@ -2,7 +2,14 @@
 
 import 'package:dio/dio.dart' as transport;
 
-import 'exports.dart' as clients show MetaClient;
+import 'exports.dart'
+    as clients
+    show
+        AccountClient,
+        AuthClient,
+        EntitlementsClient,
+        MetaClient,
+        SessionsClient;
 
 export 'exports.dart';
 
@@ -11,7 +18,7 @@ final class FynonaApi {
   static const String title = "Fynona public API";
 
   /// API version from info.version.
-  static const String apiVersion = "1.0.0";
+  static const String apiVersion = "1.4.0";
 
   /// Exact Swagger or OpenAPI version.
   static const String specVersion = "3.1.0";
@@ -19,5 +26,10 @@ final class FynonaApi {
   FynonaApi(this._client);
   final transport.Dio _client;
 
+  late final clients.AccountClient account = clients.AccountClient(_client);
+  late final clients.AuthClient auth = clients.AuthClient(_client);
+  late final clients.EntitlementsClient entitlements =
+      clients.EntitlementsClient(_client);
   late final clients.MetaClient meta = clients.MetaClient(_client);
+  late final clients.SessionsClient sessions = clients.SessionsClient(_client);
 }

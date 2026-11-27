@@ -20,6 +20,9 @@ class Problem {
 
     /// Where to get a supported client; set on `api_version_unsupported`.
     this.updateUrl,
+
+    /// The exceeded entitlement, e.g. `connections.max`; set on `402` `entitlement.exceeded` (MON-4).
+    this.entitlement,
     this.additionalProperties = const {},
   });
 
@@ -37,6 +40,9 @@ class Problem {
         : null,
     updateUrl: json.containsKey("update_url")
         ? json["update_url"] as String
+        : null,
+    entitlement: json.containsKey("entitlement")
+        ? json["entitlement"] as String
         : null,
     additionalProperties: {
       for (final entry in json.entries)
@@ -64,6 +70,9 @@ class Problem {
   /// Where to get a supported client; set on `api_version_unsupported`.
   final String? updateUrl;
 
+  /// The exceeded entitlement, e.g. `connections.max`; set on `402` `entitlement.exceeded` (MON-4).
+  final String? entitlement;
+
   static const _knownKeys = <String>{
     "type",
     "title",
@@ -73,6 +82,7 @@ class Problem {
     "request_id",
     "errors",
     "update_url",
+    "entitlement",
   };
 
   final Map<String, Object?> additionalProperties;
@@ -89,5 +99,6 @@ class Problem {
     if (this.errors != null)
       "errors": this.errors?.map((item) => item.toJson()).toList(),
     if (this.updateUrl != null) "update_url": this.updateUrl,
+    if (this.entitlement != null) "entitlement": this.entitlement,
   };
 }

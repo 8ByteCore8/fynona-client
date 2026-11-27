@@ -24,6 +24,18 @@ const _mutatingMethods = {'POST', 'PUT', 'PATCH', 'DELETE'};
 String endpointGroup(Uri uri) =>
     uri.pathSegments.where((segment) => segment.isNotEmpty).take(2).join('/');
 
+/// Whether a mutating request is exempt from `Idempotency-Key` (API-20): every
+/// `/v1/auth/*` route, `DELETE /v1/me` and `POST /v1/me/email`. Their
+/// responses carry tokens or their bodies carry passwords, which the server's
+/// idempotency store must not keep; without a key they are never retried.
+bool takesNoIdempotencyKey(String method, Uri uri) {
+  final path = uri.path;
+  final verb = method.toUpperCase();
+  return path.startsWith('/v1/auth/') ||
+      (verb == 'DELETE' && path == '/v1/me') ||
+      (verb == 'POST' && path == '/v1/me/email');
+}
+
 /// The Fynona API client: generated [api] over a resilient [dio] (API-60…64).
 ///
 /// Every request gets `X-Request-ID`, `User-Agent` and `X-Fynona-API`,
@@ -291,6 +303,7 @@ final class ResilientAdapter implements HttpClientAdapter {
       headers[contractVersionHeader] = contractVersion;
     }
     if (_mutatingMethods.contains(options.method.toUpperCase()) &&
+        !takesNoIdempotencyKey(options.method, options.uri) &&
         !has(idempotencyKeyHeader)) {
       headers['Idempotency-Key'] = _uuid.next();
     }
