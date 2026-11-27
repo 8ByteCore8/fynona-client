@@ -2,6 +2,10 @@ import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 
 import '../auth/auth.dart';
+import '../screens/account/account_screen.dart';
+import '../screens/account/security_screen.dart';
+import '../screens/account/subscription_screen.dart';
+import '../screens/account/totp_setup_screen.dart';
 import '../screens/analytics_screen.dart';
 import '../screens/auth/password_screens.dart';
 import '../screens/auth/sign_in_screen.dart';
@@ -15,6 +19,12 @@ const overviewPath = '/overview';
 const operationsPath = '/operations';
 const analyticsPath = '/analytics';
 const morePath = '/more';
+
+/// Screens under «Ще» (CLI-12).
+const securityPath = '$morePath/security';
+const totpSetupPath = '$securityPath/totp';
+const accountPath = '$morePath/account';
+const subscriptionPath = '$morePath/subscription';
 
 const signInPath = '/sign-in';
 const mfaPath = '/sign-in/mfa';
@@ -123,6 +133,26 @@ GoRouter buildRouter({
             GoRoute(
               path: morePath,
               builder: (context, state) => const MoreScreen(),
+              routes: [
+                GoRoute(
+                  path: 'security',
+                  builder: (context, state) => const SecurityScreen(),
+                  routes: [
+                    GoRoute(
+                      path: 'totp',
+                      builder: (context, state) => const TotpSetupScreen(),
+                    ),
+                  ],
+                ),
+                GoRoute(
+                  path: 'account',
+                  builder: (context, state) => const AccountScreen(),
+                ),
+                GoRoute(
+                  path: 'subscription',
+                  builder: (context, state) => const SubscriptionScreen(),
+                ),
+              ],
             ),
           ],
         ),

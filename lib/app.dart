@@ -1,12 +1,15 @@
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fynona_api/fynona_api.dart' show EntitlementExceededException;
 import 'package:fynona_ui/fynona_ui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
+import 'account/account.dart';
 import 'api/contract.dart';
 import 'auth/auth.dart';
 import 'l10n/gen/app_localizations.dart';
+import 'screens/account/subscription_screen.dart';
 import 'settings/appearance.dart';
 import 'shell/contract_gate.dart';
 import 'shell/router.dart';
@@ -61,9 +64,37 @@ class _FynonaAppState extends ConsumerState<FynonaApp> {
     super.dispose();
   }
 
+  bool _offerOpen = false;
+
+  /// Shows the plan offer of a `402 entitlement.exceeded` from any screen
+  /// (MON-4); one at a time.
+  Future<void> _offerPlan(EntitlementExceededException exception) async {
+    final context = _router.routerDelegate.navigatorKey.currentContext;
+    if (_offerOpen || context == null) return;
+    _offerOpen = true;
+    try {
+      await showModalBottomSheet<void>(
+        context: context,
+        isScrollControlled: true,
+        builder: (sheet) => PlanOfferSheet(
+          exception: exception,
+          onSeePlans: () {
+            Navigator.pop(sheet);
+            _router.go(subscriptionPath);
+          },
+        ),
+      );
+    } finally {
+      _offerOpen = false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     ref.listen(authStateProvider, (_, next) => _auth.value = next);
+    ref.listen(entitlementRejectionsProvider, (_, next) {
+      if (next case AsyncData(:final value)) _offerPlan(value);
+    });
     final appearance = ref.watch(appearanceProvider);
     final highContrast = appearance.highContrast;
     return MaterialApp.router(

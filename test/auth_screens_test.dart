@@ -354,6 +354,7 @@ void main() {
       );
 
       await tester.scrollUntilVisible(find.byKey(signOutKey), 200);
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(signOutKey));
       await tester.pumpAndSettle();
 

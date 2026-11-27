@@ -76,7 +76,15 @@ FYNONA_API_URL=http://127.0.0.1:8080 dart test       # plus the contract checks 
 FYNONA_API_URL=http://127.0.0.1:8080 FYNONA_SERVER_LOG=server.log dart test   # plus the auth flow
 ```
 
-The auth e2e (`test/e2e_auth_test.dart`) reads the verification link from the
-server log, where the sandbox mailer writes every message.
+The auth and account e2e (`test/e2e_auth_test.dart`, `test/e2e_account_test.dart`)
+read the verification link from the server log, where the sandbox mailer writes every
+message. The account e2e turns TOTP on, signs in again with a code (it waits for the
+next 30-second step, since a code is single-use), finishes an export, deletes the
+account and checks that sign-in then fails.
+
+`AccountCalls` (`lib/src/account.dart`) reads and writes `/v1/me` with its `ETag`
+(`Versioned`) and downloads an export archive as bytes. A `402` with code
+`entitlement.exceeded` is an `EntitlementExceededException` and is also emitted on
+`ApiTransport.entitlementRejections` (MON-4).
 
 The server README («Sandbox against a local PostgreSQL») shows how to run one.

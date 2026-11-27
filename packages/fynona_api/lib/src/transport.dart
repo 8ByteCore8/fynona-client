@@ -89,6 +89,10 @@ final class ApiTransport {
               !_rejected.isClosed) {
             _rejected.add(exception);
           }
+          if (exception is EntitlementExceededException &&
+              !_entitlementRejections.isClosed) {
+            _entitlementRejections.add(exception);
+          }
           handler.next(error);
         },
       ),
@@ -98,6 +102,8 @@ final class ApiTransport {
 
   late final ResilientAdapter _adapter;
   final _rejected = StreamController<UpgradeRequiredException>.broadcast();
+  final _entitlementRejections =
+      StreamController<EntitlementExceededException>.broadcast();
 
   /// The underlying HTTP client; its adapter is the resilient one.
   late final Dio dio;
@@ -123,6 +129,11 @@ final class ApiTransport {
   /// Every `426 api_version_unsupported` the server answers, on any route:
   /// this client is outdated (API-12).
   Stream<UpgradeRequiredException> get contractRejections => _rejected.stream;
+
+  /// Every `402 entitlement.exceeded` the server answers, on any route: the
+  /// app offers a plan (MON-4).
+  Stream<EntitlementExceededException> get entitlementRejections =>
+      _entitlementRejections.stream;
 
   /// Reads `GET /v1/meta` and decides whether this client's contract version
   /// works with the server (API-12). `404` or `410` on that route and a `426`
@@ -157,6 +168,7 @@ final class ApiTransport {
 
   void close() {
     _rejected.close();
+    _entitlementRejections.close();
     dio.close(force: true);
   }
 }
@@ -170,14 +182,24 @@ ApiException apiExceptionOf(DioException error) {
   final status = response.statusCode ?? 0;
   final data = response.data;
   final contentType = response.headers.value(Headers.contentTypeHeader);
+  final retrySeconds = int.tryParse(
+    response.headers.value('retry-after')?.trim() ?? '',
+  );
+  final retryAfter = retrySeconds == null || retrySeconds < 0
+      ? null
+      : Duration(seconds: retrySeconds);
   if (data is Map<String, Object?> &&
       contentType != null &&
       contentType.startsWith('application/problem+json')) {
     try {
       final problem = Problem.fromJson(data);
-      return status == 426
-          ? UpgradeRequiredException(problem)
-          : ApiProblemException(problem);
+      if (status == 426) {
+        return UpgradeRequiredException(problem, retryAfter: retryAfter);
+      }
+      if (status == 402 && problem.code == entitlementExceededCode) {
+        return EntitlementExceededException(problem, retryAfter: retryAfter);
+      }
+      return ApiProblemException(problem, retryAfter: retryAfter);
     } on Object {
       // A malformed problem body falls back to the bare status below.
     }
@@ -185,6 +207,7 @@ ApiException apiExceptionOf(DioException error) {
   return ApiHttpException(
     status,
     requestId: response.headers.value('x-request-id'),
+    retryAfter: retryAfter,
   );
 }
 

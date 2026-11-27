@@ -6,3 +6,7 @@ bool get passkeysSupported => false;
 Future<Map<String, Object?>> getPasskeyAssertion(
   Map<String, Object?> options,
 ) => throw UnsupportedError('passkeys need a browser');
+
+/// Never called where [passkeysSupported] is false.
+Future<Map<String, Object?>> createPasskey(Map<String, Object?> options) =>
+    throw UnsupportedError('passkeys need a browser');

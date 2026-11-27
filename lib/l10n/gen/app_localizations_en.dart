@@ -268,4 +268,309 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get authSignOut => 'Sign out';
+
+  @override
+  String get moreAccount => 'Account';
+
+  @override
+  String get commonCancel => 'Cancel';
+
+  @override
+  String get commonClose => 'Close';
+
+  @override
+  String get commonConfirm => 'Confirm';
+
+  @override
+  String get commonCopied => 'Copied';
+
+  @override
+  String get commonCopy => 'Copy';
+
+  @override
+  String get commonDelete => 'Delete';
+
+  @override
+  String get commonDone => 'Done';
+
+  @override
+  String get commonRetry => 'Retry';
+
+  @override
+  String get commonSave => 'Save';
+
+  @override
+  String commonSavedTo(String where) {
+    return 'Saved: $where';
+  }
+
+  @override
+  String get commonSaveFailed => 'Couldn\'t save the file';
+
+  @override
+  String get securitySessions => 'Sessions';
+
+  @override
+  String get securitySessionThisDevice => 'This device';
+
+  @override
+  String get securitySessionUnknownDevice => 'Unknown device';
+
+  @override
+  String securitySessionLastUsed(String date) {
+    return 'last used $date';
+  }
+
+  @override
+  String get securitySessionRevoke => 'End session';
+
+  @override
+  String get securitySessionsRevokeOthers => 'Sign out other devices';
+
+  @override
+  String get securitySessionsRevokeOthersConfirm =>
+      'End every session but this one? Other devices will have to sign in again.';
+
+  @override
+  String get securityTotp => 'Two-factor authentication';
+
+  @override
+  String get securityTotpOff => 'Off';
+
+  @override
+  String get securityTotpOffHint =>
+      'A code from an authenticator app at sign-in';
+
+  @override
+  String get securityTotpOn => 'On';
+
+  @override
+  String securityRecoveryCodesLeft(int count) {
+    return 'Recovery codes left: $count';
+  }
+
+  @override
+  String get securityTotpEnable => 'Turn on';
+
+  @override
+  String get securityTotpDisable => 'Turn off 2FA';
+
+  @override
+  String get securityTotpDisableConfirm =>
+      'Sign-in will need only the password again. Confirm with a code from the app or your password.';
+
+  @override
+  String get securityTotpOrPassword => 'Or your password';
+
+  @override
+  String get securityTotpRegenerate => 'New recovery codes';
+
+  @override
+  String get securityTotpRegenerateHint =>
+      'The old codes stop working. Enter a code from the app.';
+
+  @override
+  String get securityTotpCode => 'Code from the app';
+
+  @override
+  String get securityTotpCodeInvalid => 'Six digits';
+
+  @override
+  String get securityPasskeys => 'Passkeys';
+
+  @override
+  String get securityPasskeysEmpty => 'No passkeys yet';
+
+  @override
+  String get securityPasskeyAdd => 'Add a passkey';
+
+  @override
+  String get securityPasskeyName => 'Name, e.g. MacBook';
+
+  @override
+  String securityPasskeyCreated(String date) {
+    return 'Added $date';
+  }
+
+  @override
+  String securityPasskeyDeleteConfirm(String name) {
+    return 'Delete the passkey “$name”? It will no longer sign you in.';
+  }
+
+  @override
+  String get totpSetupTitle => 'Turn on 2FA';
+
+  @override
+  String get totpSetupScan =>
+      'Scan the QR code with an authenticator app or enter the key by hand, then enter the code it shows.';
+
+  @override
+  String get totpSetupQrLabel => 'QR code for the authenticator app';
+
+  @override
+  String get totpSetupManualKey => 'Key for manual entry';
+
+  @override
+  String get recoveryCodesTitle => 'Recovery codes';
+
+  @override
+  String get recoveryCodesHint =>
+      'Keep these codes somewhere safe: each one signs you in once without your phone. They will not be shown again.';
+
+  @override
+  String get accountProfile => 'Profile';
+
+  @override
+  String get accountDisplayName => 'Display name';
+
+  @override
+  String get accountLocale => 'Language';
+
+  @override
+  String get accountCurrency => 'Display currency';
+
+  @override
+  String get accountCurrencyInvalid => 'A three-letter currency code, e.g. UAH';
+
+  @override
+  String get accountSaved => 'Saved';
+
+  @override
+  String get accountConflict =>
+      'The account changed elsewhere. It is reloaded; make your changes again.';
+
+  @override
+  String get accountEmail => 'Email';
+
+  @override
+  String accountEmailPending(String email) {
+    return 'Awaiting confirmation: $email. Open the link in the email.';
+  }
+
+  @override
+  String get accountEmailChange => 'Change email';
+
+  @override
+  String get accountEmailNew => 'New email';
+
+  @override
+  String get accountReauthHint =>
+      'Confirm it\'s you: your password and, with 2FA on, a code or a recovery code.';
+
+  @override
+  String get accountReauthCode => '2FA code or recovery code';
+
+  @override
+  String get accountExport => 'Export your data';
+
+  @override
+  String get accountExportHint => 'An archive of all your data as JSON.';
+
+  @override
+  String get accountExportStart => 'Start export';
+
+  @override
+  String get accountExportPending => 'Preparing the archive…';
+
+  @override
+  String get accountExportReady => 'The archive is ready';
+
+  @override
+  String accountExportReadyUntil(String date) {
+    return 'The archive is ready until $date';
+  }
+
+  @override
+  String get accountExportDownload => 'Download';
+
+  @override
+  String get accountExportFailed => 'The export failed. Try again.';
+
+  @override
+  String get accountExportExpired =>
+      'The archive is no longer available. Start a new export.';
+
+  @override
+  String get accountDanger => 'Account deletion';
+
+  @override
+  String get accountDelete => 'Delete account';
+
+  @override
+  String get accountDeleteWarning =>
+      'The account and all its data are deleted for good. This cannot be undone.';
+
+  @override
+  String accountDeleteType(String email) {
+    return 'To confirm, type $email';
+  }
+
+  @override
+  String get languageUk => 'Українська';
+
+  @override
+  String get languageRu => 'Русский';
+
+  @override
+  String get languageEn => 'English';
+
+  @override
+  String subscriptionPlan(String name) {
+    return 'Plan: $name';
+  }
+
+  @override
+  String get subscriptionEntitlements => 'What\'s included';
+
+  @override
+  String get entitlementProfilesMax => 'Profiles';
+
+  @override
+  String get entitlementConnectionsMax => 'Connections';
+
+  @override
+  String get entitlementConnectorsBusiness => 'Business connectors';
+
+  @override
+  String get entitlementHistoryMonths => 'History, months';
+
+  @override
+  String get entitlementSyncMinInterval => 'Sync at most every';
+
+  @override
+  String get entitlementExports => 'Export formats';
+
+  @override
+  String get entitlementAiAnalyses => 'AI analyses per month';
+
+  @override
+  String get entitlementInvestmentsRebalance => 'Portfolio rebalancing';
+
+  @override
+  String get entitlementUnlimited => 'Unlimited';
+
+  @override
+  String get entitlementYes => 'Yes';
+
+  @override
+  String get entitlementNo => 'No';
+
+  @override
+  String entitlementMinutes(int count) {
+    return '$count min';
+  }
+
+  @override
+  String get planOfferTitle => 'Your plan\'s limit is reached';
+
+  @override
+  String planOfferMessage(String entitlement) {
+    return 'Your plan has no more “$entitlement”. The plans below give more.';
+  }
+
+  @override
+  String get planOfferMessageUnknown => 'This action is not part of your plan.';
+
+  @override
+  String get planOfferSeePlans => 'My plan';
 }
