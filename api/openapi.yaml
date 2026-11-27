@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Fynona public API
-  version: 1.0.0
+  version: 1.4.0
   description: |
     Public API of the Fynona server (API-1: this file is the source of truth;
     server types and handler interfaces are generated from it, ADR-001).
@@ -16,13 +16,880 @@ info:
     Clients read `contract_version` and `min_contract_version` from
     `GET /v1/meta` and send the contract version they were built against in
     `X-Fynona-API`; another major or a version below the minimum gets `426`.
+
+    Authentication (SEC-4): `Authorization: Bearer <access_token>` with an
+    opaque access token that lives 15 minutes; `POST /v1/auth/refresh` trades
+    the refresh token for a new pair. A refresh token works once: presenting a
+    used one revokes its whole session, except the immediately previous token
+    retried within a short grace window after its rotation (server setting,
+    30 seconds by default). A blocked user fails every token on the next
+    request. The `/v1/auth/*` routes take no `Idempotency-Key` (exempt from
+    API-20): the idempotency store would keep their responses, which carry
+    tokens, and a hash of request bodies that carry passwords (SEC-4, SEC-32).
+
+    Web mode (SEC-5): with `token_delivery: cookie` the refresh token is set
+    as the `fynona_refresh` cookie (`HttpOnly; Secure; SameSite=Strict`, path
+    `/v1/auth/refresh`) and left out of the body. Cross-origin calls work only
+    from the origins allowed in the server configuration.
+
+    Second factor (SEC-2): with TOTP on, `POST /v1/auth/login` answers `202`
+    with an `mfa_token` instead of tokens; `POST /v1/auth/login/mfa` trades it
+    with a TOTP or recovery code for the tokens. Passkeys (SEC-1, WebAuthn)
+    sign in without a password through `/v1/auth/passkeys/login/*`. A session
+    opened with a second factor (TOTP, recovery code or a user-verified
+    passkey) carries the second-factor flag that admin access requires.
 servers:
   - url: /
     description: Same origin; the host depends on the environment (PLT-24).
 tags:
   - name: meta
     description: Server, API and client compatibility information.
+  - name: auth
+    description: Registration, email confirmation, sign-in, password reset, second factor and passkeys (SEC-1, SEC-2, SEC-3).
+  - name: sessions
+    description: The caller's signed-in devices (SEC-4).
+  - name: account
+    description: The caller's account, settings, data export and deletion (API-23, SEC-60).
+  - name: entitlements
+    description: Plans, the caller's subscription and entitlements, for display (MON-1...MON-5).
 paths:
+  /v1/auth/register:
+    post:
+      operationId: registerAccount
+      tags: [auth]
+      summary: Create an account and email a confirmation link (SEC-3).
+      description: |
+        Always `202`, whether or not the email is already registered: a new
+        address gets a confirmation link, a registered one a notice. Sign-in
+        works after the address is confirmed.
+
+        Takes no `Idempotency-Key` (exempt from API-20): the idempotency store
+        would keep a hash of a request body that carries the password.
+      parameters:
+        - $ref: '#/components/parameters/XRequestId'
+        - $ref: '#/components/parameters/XFynonaAPI'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/RegisterRequest'}
+      responses:
+        '202': {$ref: '#/components/responses/Accepted'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '429': {$ref: '#/components/responses/TooManyRequests'}
+        default: {$ref: '#/components/responses/Problem'}
+  /v1/auth/email/verify:
+    post:
+      operationId: verifyEmail
+      tags: [auth]
+      summary: Confirm an email address with the token of its link (SEC-3).
+      description: |
+        A link works once and expires; an unusable one is `400` with code
+        `auth.link_invalid`.
+
+        Takes no `Idempotency-Key` (exempt from API-20): the idempotency store
+        would keep a hash of a request body that carries the link token.
+      parameters:
+        - $ref: '#/components/parameters/XRequestId'
+        - $ref: '#/components/parameters/XFynonaAPI'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/LinkTokenRequest'}
+      responses:
+        '204': {$ref: '#/components/responses/NoContent'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '429': {$ref: '#/components/responses/TooManyRequests'}
+        default: {$ref: '#/components/responses/Problem'}
+  /v1/auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Sign in with email and password and open a session (SEC-3, SEC-4).
+      description: |
+        A wrong email or password is `401` with code `auth.invalid_credentials`
+        either way. Failed attempts per account and per client IP are slowed
+        down with a growing delay; while it lasts the answer is `429` with
+        `Retry-After`. A correct password of an unconfirmed address is `403`
+        `auth.email_unverified`, of a blocked account `403` `auth.account_blocked`.
+        With TOTP on, the right password is `202` with an `mfa_token` for
+        `POST /v1/auth/login/mfa` and no session is opened yet (SEC-2).
+
+        Takes no `Idempotency-Key` (exempt from API-20): the idempotency store
+        would keep the response, which carries the tokens, and a hash of a
+        request body that carries the password.
+      parameters:
+        - $ref: '#/components/parameters/XRequestId'
+        - $ref: '#/components/parameters/XFynonaAPI'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/LoginRequest'}
+      responses:
+        '200': {$ref: '#/components/responses/Tokens'}
+        '202':
+          description: The password is right and the account has TOTP on; complete the sign-in with `POST /v1/auth/login/mfa`.
+          headers:
+            X-Request-ID: {$ref: '#/components/headers/XRequestId'}
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MfaChallenge'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '429': {$ref: '#/components/responses/TooManyRequests'}
+        default: {$ref: '#/components/responses/Problem'}
+  /v1/auth/login/mfa:
+    post:
+      operationId: loginMfa
+      tags: [auth]
+      summary: Complete a sign-in with a TOTP or recovery code (SEC-2).
+      description: |
+        Takes the `mfa_token` of a `202` login and either `code` (six digits
+        from the authenticator app) or `recovery_code`. A wrong code is `403`
+        `auth.mfa_invalid` and counts toward the same per-account and per-IP
+        limits as a wrong password; after five wrong codes, or five minutes,
+        the token is dead and an answer is `401` `auth.unauthorized`. A code
+        works once; a recovery code too. The session is opened with the
+        second-factor flag.
+
+        Takes no `Idempotency-Key` (exempt from API-20, like every
+        `/v1/auth/*` route): the response carries the tokens.
+      parameters:
+        - $ref: '#/components/parameters/XRequestId'
+        - $ref: '#/components/parameters/XFynonaAPI'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/LoginMfaRequest'}
+      responses:
+        '200': {$ref: '#/components/responses/Tokens'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/MfaInvalid'}
+        '429': {$ref: '#/components/responses/TooManyRequests'}
+        default: {$ref: '#/components/responses/Problem'}
+  /v1/auth/refresh:
+    post:
+      operationId: refreshSession
+      tags: [auth]
+      summary: Rotate a session's tokens (SEC-4).
+      description: |
+        Takes the refresh token from the body or, in web mode, from the
+        `fynona_refresh` cookie; a token from the cookie is answered in web
+        mode. The token works once: presenting it again revokes the session
+        and answers `401` `auth.unauthorized`. One exception keeps a retry after
+        a lost response from signing the user out: the immediately previous
+        token presented again within the grace window after its rotation
+        (server setting, 30 seconds by default) gets a fresh pair, and the
+        unused pair issued before is revoked. An older token, or one presented
+        after the window, revokes the session.
+
+        Takes no `Idempotency-Key` (exempt from API-20): the idempotency store
+        would keep the response, which carries the tokens.
+      parameters:
+        - $ref: '#/components/parameters/XRequestId'
+        - $ref: '#/components/parameters/XFynonaAPI'
+        - $ref: '#/components/parameters/RefreshCookie'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/RefreshRequest'}
+      responses:
+        '200': {$ref: '#/components/responses/Tokens'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '429': {$ref: '#/components/responses/TooManyRequests'}
+        default: {$ref: '#/components/responses/Problem'}
+  /v1/auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: End the caller's session and clear the web refresh cookie.
+      description: |
+        Takes no `Idempotency-Key` (exempt from API-20, like every
+        `/v1/auth/*` route); ending an ended session is `401`.
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/XRequestId'
+        - $ref: '#/components/parameters/XFynonaAPI'
+      responses:
+        '204':
+          description: The session is ended.
+          headers:
+            X-Request-ID: {$ref: '#/components/headers/XRequestId'}
+            Set-Cookie: {$ref: '#/components/headers/RefreshCookieCleared'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '429': {$ref: '#/components/responses/TooManyRequests'}
+        default: {$ref: '#/components/responses/Problem'}
+  /v1/auth/password/reset:
+    post:
+      operationId: requestPasswordReset
+      tags: [auth]
+      summary: Email a password reset link (SEC-3).
+      description: |
+        Always `202`, whether or not the email is registered.
+
+        Takes no `Idempotency-Key` (exempt from API-20, like every
+        `/v1/auth/*` route).
+      parameters:
+        - $ref: '#/components/parameters/XRequestId'
+        - $ref: '#/components/parameters/XFynonaAPI'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/PasswordResetRequest'}
+      responses:
+        '202': {$ref: '#/components/responses/Accepted'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '429': {$ref: '#/components/responses/TooManyRequests'}
+        default: {$ref: '#/components/responses/Problem'}
+  /v1/auth/password/reset/confirm:
+    post:
+      operationId: confirmPasswordReset
+      tags: [auth]
+      summary: Set a new password with the token of a reset link (SEC-3).
+      description: |
+        The link works once and expires; an unusable one is `400` with code
+        `auth.link_invalid`. A reset confirms the email address and ends every
+        session of the account.
+
+        Takes no `Idempotency-Key` (exempt from API-20): the idempotency store
+        would keep a hash of a request body that carries the new password.
+      parameters:
+        - $ref: '#/components/parameters/XRequestId'
+        - $ref: '#/components/parameters/XFynonaAPI'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/PasswordResetConfirm'}
+      responses:
+        '204': {$ref: '#/components/responses/NoContent'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '429': {$ref: '#/components/responses/TooManyRequests'}
+        default: {$ref: '#/components/responses/Problem'}
+  /v1/auth/totp:
+    get:
+      operationId: getTotp
+      tags: [auth]
+      summary: Whether the caller has TOTP on, and the unused recovery codes left (SEC-2).
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/XRequestId'
+        - $ref: '#/components/parameters/XFynonaAPI'
+      responses:
+        '200':
+          description: The caller's second-factor state.
+          headers:
+            X-Request-ID: {$ref: '#/components/headers/XRequestId'}
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/TotpStatus'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '429': {$ref: '#/components/responses/TooManyRequests'}
+        default: {$ref: '#/components/responses/Problem'}
+  /v1/auth/totp/enroll:
+    post:
+      operationId: enrollTotp
+      tags: [auth]
+      summary: Start TOTP enrollment with a new secret (SEC-2).
+      description: |
+        Returns the secret and its `otpauth://` URI for the authenticator app;
+        TOTP is on only after `POST /v1/auth/totp/verify` with a first code.
+        Enrolling again before that replaces the secret. With TOTP already on
+        the answer is `409` `auth.totp_enabled`. The secret is stored
+        encrypted (AES-256-GCM, SEC-30) and shown only here.
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/XRequestId'
+        - $ref: '#/components/parameters/XFynonaAPI'
+      responses:
+        '200':
+          description: The new secret.
+          headers:
+            X-Request-ID: {$ref: '#/components/headers/XRequestId'}
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/TotpEnrollment'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '409': {$ref: '#/components/responses/TotpState'}
+        '429': {$ref: '#/components/responses/TooManyRequests'}
+        default: {$ref: '#/components/responses/Problem'}
+  /v1/auth/totp/verify:
+    post:
+      operationId: verifyTotp
+      tags: [auth]
+      summary: Turn TOTP on with the first code of the enrolled secret (SEC-2).
+      description: |
+        Returns the ten recovery codes, shown only here. The caller's session
+        gets the second-factor flag. A wrong or reused code is `403`
+        `auth.mfa_invalid` and counts toward the sign-in limits; no pending
+        enrollment, or TOTP already on, is `409`.
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/XRequestId'
+        - $ref: '#/components/parameters/XFynonaAPI'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/TotpCodeRequest'}
+      responses:
+        '200': {$ref: '#/components/responses/RecoveryCodes'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/MfaInvalid'}
+        '409': {$ref: '#/components/responses/TotpState'}
+        '429': {$ref: '#/components/responses/TooManyRequests'}
+        default: {$ref: '#/components/responses/Problem'}
+  /v1/auth/totp/disable:
+    post:
+      operationId: disableTotp
+      tags: [auth]
+      summary: Turn TOTP off with a fresh code or the password (SEC-2).
+      description: |
+        Needs `code` (a current TOTP code) or `password`. The secret and the
+        recovery codes are deleted and no session of the account keeps the
+        second-factor flag. A wrong code or password is `403`
+        `auth.mfa_invalid` and counts toward the sign-in limits; TOTP not on
+        is `409` `auth.totp_not_enabled`.
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/XRequestId'
+        - $ref: '#/components/parameters/XFynonaAPI'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/TotpDisableRequest'}
+      responses:
+        '204': {$ref: '#/components/responses/NoContent'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/MfaInvalid'}
+        '409': {$ref: '#/components/responses/TotpState'}
+        '429': {$ref: '#/components/responses/TooManyRequests'}
+        default: {$ref: '#/components/responses/Problem'}
+  /v1/auth/totp/recovery-codes:
+    post:
+      operationId: regenerateRecoveryCodes
+      tags: [auth]
+      summary: Replace the recovery codes after a fresh TOTP code (SEC-2).
+      description: The old codes stop working at once; the new ones are shown only here.
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/XRequestId'
+        - $ref: '#/components/parameters/XFynonaAPI'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/TotpCodeRequest'}
+      responses:
+        '200': {$ref: '#/components/responses/RecoveryCodes'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/MfaInvalid'}
+        '409': {$ref: '#/components/responses/TotpState'}
+        '429': {$ref: '#/components/responses/TooManyRequests'}
+        default: {$ref: '#/components/responses/Problem'}
+  /v1/auth/passkeys:
+    get:
+      operationId: listPasskeys
+      tags: [auth]
+      summary: The caller's passkeys, oldest first (SEC-1).
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/XRequestId'
+        - $ref: '#/components/parameters/XFynonaAPI'
+      responses:
+        '200':
+          description: Registered passkeys.
+          headers:
+            X-Request-ID: {$ref: '#/components/headers/XRequestId'}
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/PasskeyList'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '429': {$ref: '#/components/responses/TooManyRequests'}
+        default: {$ref: '#/components/responses/Problem'}
+  /v1/auth/passkeys/{id}:
+    delete:
+      operationId: deletePasskey
+      tags: [auth]
+      summary: Remove one of the caller's passkeys (SEC-1).
+      description: Another user's passkey or an unknown one is `404`.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+        - $ref: '#/components/parameters/XRequestId'
+        - $ref: '#/components/parameters/XFynonaAPI'
+      responses:
+        '204': {$ref: '#/components/responses/NoContent'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '429': {$ref: '#/components/responses/TooManyRequests'}
+        default: {$ref: '#/components/responses/Problem'}
+  /v1/auth/passkeys/register/options:
+    post:
+      operationId: beginPasskeyRegistration
+      tags: [auth]
+      summary: Start registering a passkey for the caller (SEC-1, WebAuthn).
+      description: |
+        `options` is the argument of `navigator.credentials.create()` with
+        binary members in base64url; the ceremony expires in five minutes.
+        Passkeys must be discoverable and user-verified.
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/XRequestId'
+        - $ref: '#/components/parameters/XFynonaAPI'
+      responses:
+        '200': {$ref: '#/components/responses/PasskeyCeremony'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '429': {$ref: '#/components/responses/TooManyRequests'}
+        default: {$ref: '#/components/responses/Problem'}
+  /v1/auth/passkeys/register:
+    post:
+      operationId: finishPasskeyRegistration
+      tags: [auth]
+      summary: Store a passkey from the authenticator's response (SEC-1, WebAuthn).
+      description: |
+        `credential` is the `PublicKeyCredential` JSON (`toJSON()`). A response
+        that fails verification, an already registered authenticator, or an
+        unknown, used or expired ceremony is `400` `auth.passkey_invalid`.
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/XRequestId'
+        - $ref: '#/components/parameters/XFynonaAPI'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/PasskeyRegistration'}
+      responses:
+        '201':
+          description: The passkey is registered.
+          headers:
+            X-Request-ID: {$ref: '#/components/headers/XRequestId'}
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Passkey'}
+        '400': {$ref: '#/components/responses/PasskeyInvalid'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '429': {$ref: '#/components/responses/TooManyRequests'}
+        default: {$ref: '#/components/responses/Problem'}
+  /v1/auth/passkeys/login/options:
+    post:
+      operationId: beginPasskeyLogin
+      tags: [auth]
+      summary: Start a passwordless sign-in with a passkey (SEC-1, WebAuthn).
+      description: '`options` is the argument of `navigator.credentials.get()`; any discoverable passkey of the site may answer.'
+      parameters:
+        - $ref: '#/components/parameters/XRequestId'
+        - $ref: '#/components/parameters/XFynonaAPI'
+      responses:
+        '200': {$ref: '#/components/responses/PasskeyCeremony'}
+        '429': {$ref: '#/components/responses/TooManyRequests'}
+        default: {$ref: '#/components/responses/Problem'}
+  /v1/auth/passkeys/login:
+    post:
+      operationId: finishPasskeyLogin
+      tags: [auth]
+      summary: Sign in with a passkey assertion and open a session (SEC-1, SEC-4).
+      description: |
+        A response that fails verification, an unknown passkey, or an unknown,
+        used or expired ceremony is `400` `auth.passkey_invalid`; a blocked
+        account or an unconfirmed address is `403`. The session carries the
+        second-factor flag: the passkey is verified by the user (PIN or
+        biometrics) on the device.
+
+        Takes no `Idempotency-Key` (exempt from API-20, like every
+        `/v1/auth/*` route): the response carries the tokens.
+      parameters:
+        - $ref: '#/components/parameters/XRequestId'
+        - $ref: '#/components/parameters/XFynonaAPI'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/PasskeyLogin'}
+      responses:
+        '200': {$ref: '#/components/responses/Tokens'}
+        '400': {$ref: '#/components/responses/PasskeyInvalid'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '429': {$ref: '#/components/responses/TooManyRequests'}
+        default: {$ref: '#/components/responses/Problem'}
+  /v1/sessions:
+    get:
+      operationId: listSessions
+      tags: [sessions]
+      summary: The caller's active sessions, most recently used first (SEC-4).
+      description: A user has few sessions, so the list is one page without `next_cursor`.
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/XRequestId'
+        - $ref: '#/components/parameters/XFynonaAPI'
+      responses:
+        '200':
+          description: Active sessions.
+          headers:
+            X-Request-ID: {$ref: '#/components/headers/XRequestId'}
+            RateLimit-Policy: {$ref: '#/components/headers/RateLimitPolicy'}
+            RateLimit: {$ref: '#/components/headers/RateLimit'}
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/SessionList'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '429': {$ref: '#/components/responses/TooManyRequests'}
+        default: {$ref: '#/components/responses/Problem'}
+  /v1/sessions/{id}:
+    delete:
+      operationId: revokeSession
+      tags: [sessions]
+      summary: End one of the caller's sessions (SEC-4).
+      description: Another user's session, an unknown or an ended one is `404`.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/XRequestId'
+        - $ref: '#/components/parameters/XFynonaAPI'
+      responses:
+        '204': {$ref: '#/components/responses/NoContent'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '429': {$ref: '#/components/responses/TooManyRequests'}
+        default: {$ref: '#/components/responses/Problem'}
+  /v1/me:
+    get:
+      operationId: getMe
+      tags: [account]
+      summary: The caller's account; `ETag` is its version for `If-Match` (API-23).
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/XRequestId'
+        - $ref: '#/components/parameters/XFynonaAPI'
+      responses:
+        '200': {$ref: '#/components/responses/Profile'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '429': {$ref: '#/components/responses/TooManyRequests'}
+        default: {$ref: '#/components/responses/Problem'}
+    patch:
+      operationId: updateMe
+      tags: [account]
+      summary: Change the caller's account (API-23).
+      description: |
+        Absent fields stay as they are. The email changes through
+        `POST /v1/me/email`, which needs re-authentication.
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IfMatch'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/XRequestId'
+        - $ref: '#/components/parameters/XFynonaAPI'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ProfileUpdate'}
+      responses:
+        '200': {$ref: '#/components/responses/Profile'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '412': {$ref: '#/components/responses/PreconditionFailed'}
+        '428': {$ref: '#/components/responses/PreconditionRequired'}
+        '429': {$ref: '#/components/responses/TooManyRequests'}
+        default: {$ref: '#/components/responses/Problem'}
+    delete:
+      operationId: deleteAccount
+      tags: [account]
+      summary: Delete the caller's account for good (SEC-60).
+      description: |
+        Needs fresh re-authentication in the body: the password, plus `code`
+        (TOTP) or `recovery_code` when TOTP is on; or a passkey assertion
+        (`ceremony_id` from `POST /v1/auth/passkeys/login/options` and
+        `credential`), which carries its own user verification. Every session
+        ends and all of the user's data is deleted; audit records stay under
+        a pseudonym nothing maps back to the user (SEC-53).
+
+        Takes no `Idempotency-Key` (exempt from API-20 like `/v1/auth/*`):
+        the body carries a password.
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/XRequestId'
+        - $ref: '#/components/parameters/XFynonaAPI'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/DeleteAccountRequest'}
+      responses:
+        '204': {$ref: '#/components/responses/NoContent'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/MfaInvalid'}
+        '429': {$ref: '#/components/responses/TooManyRequests'}
+        default: {$ref: '#/components/responses/Problem'}
+  /v1/me/email:
+    post:
+      operationId: changeEmail
+      tags: [account]
+      summary: Ask to change the caller's email (API-23, SEC-3).
+      description: |
+        Needs the same fresh re-authentication as `DELETE /v1/me`; a wrong
+        proof is 403 and counts toward the login limits. The new `email`
+        does not replace the current one: it becomes `pending_email` and gets
+        a confirmation link, and the current address is told at once, without
+        a link. `POST /v1/auth/email/verify` with that link's token switches
+        the address and notifies the old one again. An address that already
+        has an account answers the same and gets a notice instead of a link.
+        Sending the current email cancels a pending change: its link stops
+        working. A password reset cancels it too.
+
+        Takes no `Idempotency-Key` (exempt from API-20 like `/v1/auth/*`):
+        the body carries a password.
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IfMatch'
+        - $ref: '#/components/parameters/XRequestId'
+        - $ref: '#/components/parameters/XFynonaAPI'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/EmailChangeRequest'}
+      responses:
+        '200': {$ref: '#/components/responses/Profile'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/MfaInvalid'}
+        '412': {$ref: '#/components/responses/PreconditionFailed'}
+        '428': {$ref: '#/components/responses/PreconditionRequired'}
+        '429': {$ref: '#/components/responses/TooManyRequests'}
+        default: {$ref: '#/components/responses/Problem'}
+  /v1/me/settings:
+    get:
+      operationId: getSettings
+      tags: [account]
+      summary: The caller's interface settings; `ETag` is their version (API-23).
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/XRequestId'
+        - $ref: '#/components/parameters/XFynonaAPI'
+      responses:
+        '200': {$ref: '#/components/responses/Settings'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '429': {$ref: '#/components/responses/TooManyRequests'}
+        default: {$ref: '#/components/responses/Problem'}
+    patch:
+      operationId: updateSettings
+      tags: [account]
+      summary: Change the caller's interface settings (API-23); absent fields stay as they are.
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IfMatch'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/XRequestId'
+        - $ref: '#/components/parameters/XFynonaAPI'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/SettingsUpdate'}
+      responses:
+        '200': {$ref: '#/components/responses/Settings'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '412': {$ref: '#/components/responses/PreconditionFailed'}
+        '428': {$ref: '#/components/responses/PreconditionRequired'}
+        '429': {$ref: '#/components/responses/TooManyRequests'}
+        default: {$ref: '#/components/responses/Problem'}
+  /v1/me/export:
+    post:
+      operationId: startExport
+      tags: [account]
+      summary: Start an export of all the caller's data (SEC-60).
+      description: |
+        The export runs in the background; poll `GET /v1/me/export/{id}`.
+        While an export is pending, the same export is returned. A ready
+        archive can be downloaded for one hour.
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/XRequestId'
+        - $ref: '#/components/parameters/XFynonaAPI'
+      responses:
+        '202':
+          description: The export is queued or already pending.
+          headers:
+            X-Request-ID: {$ref: '#/components/headers/XRequestId'}
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Export'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '429': {$ref: '#/components/responses/TooManyRequests'}
+        default: {$ref: '#/components/responses/Problem'}
+  /v1/me/export/{id}:
+    get:
+      operationId: getExport
+      tags: [account]
+      summary: The state of one of the caller's exports (SEC-60).
+      description: Another user's export or an unknown one is `404`.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+        - $ref: '#/components/parameters/XRequestId'
+        - $ref: '#/components/parameters/XFynonaAPI'
+      responses:
+        '200':
+          description: The export.
+          headers:
+            X-Request-ID: {$ref: '#/components/headers/XRequestId'}
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Export'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '429': {$ref: '#/components/responses/TooManyRequests'}
+        default: {$ref: '#/components/responses/Problem'}
+  /v1/me/export/{id}/archive:
+    get:
+      operationId: downloadExport
+      tags: [account]
+      summary: Download the JSON archive of a ready export (SEC-60).
+      description: |
+        The archive holds the account, settings, subscriptions, session
+        metadata, passkey names, the second-factor state and the audit of the
+        user's own actions; never secrets. An export that is not ready, has
+        expired or is another user's is `404`.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+        - $ref: '#/components/parameters/XRequestId'
+        - $ref: '#/components/parameters/XFynonaAPI'
+      responses:
+        '200':
+          description: The archive (`format` is `fynona-export-v1`).
+          headers:
+            X-Request-ID: {$ref: '#/components/headers/XRequestId'}
+            Content-Disposition:
+              description: '`attachment; filename="fynona-export-<id>.json"`.'
+              schema: {type: string}
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ExportArchive'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '429': {$ref: '#/components/responses/TooManyRequests'}
+        default: {$ref: '#/components/responses/Problem'}
+  /v1/plans:
+    get:
+      operationId: listPlans
+      tags: [entitlements]
+      summary: The plans and their entitlement values, for display (MON-2).
+      parameters:
+        - $ref: '#/components/parameters/XRequestId'
+        - $ref: '#/components/parameters/XFynonaAPI'
+      responses:
+        '200':
+          description: Plans in display order.
+          headers:
+            X-Request-ID: {$ref: '#/components/headers/XRequestId'}
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/PlanList'}
+        '429': {$ref: '#/components/responses/TooManyRequests'}
+        default: {$ref: '#/components/responses/Problem'}
+  /v1/subscription:
+    get:
+      operationId: getSubscription
+      tags: [entitlements]
+      summary: The caller's active subscription (MON-2, MON-5).
+      description: A user without an active subscription has the `free` plan with no `source`.
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/XRequestId'
+        - $ref: '#/components/parameters/XFynonaAPI'
+      responses:
+        '200':
+          description: The subscription.
+          headers:
+            X-Request-ID: {$ref: '#/components/headers/XRequestId'}
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Subscription'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '429': {$ref: '#/components/responses/TooManyRequests'}
+        default: {$ref: '#/components/responses/Problem'}
+  /v1/entitlements:
+    get:
+      operationId: getEntitlements
+      tags: [entitlements]
+      summary: The caller's entitlement values, for display only (MON-3).
+      description: |
+        The server decides every entitlement itself; an action over the plan
+        is `402` with code `entitlement.exceeded` and `entitlement` naming the
+        entitlement (MON-4).
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/XRequestId'
+        - $ref: '#/components/parameters/XFynonaAPI'
+      responses:
+        '200':
+          description: The caller's plan and its values.
+          headers:
+            X-Request-ID: {$ref: '#/components/headers/XRequestId'}
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Entitlements'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '429': {$ref: '#/components/responses/TooManyRequests'}
+        default: {$ref: '#/components/responses/Problem'}
   /v1/meta:
     get:
       operationId: getMeta
@@ -72,7 +939,18 @@ paths:
         '429': {$ref: '#/components/responses/TooManyRequests'}
         default: {$ref: '#/components/responses/Problem'}
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Opaque access token from `POST /v1/auth/login` or `/v1/auth/refresh`; it lives 15 minutes (SEC-4).
   parameters:
+    RefreshCookie:
+      name: fynona_refresh
+      in: cookie
+      required: false
+      description: The web mode refresh token (SEC-5), set by the server; used when the body has no `refresh_token`.
+      schema: {type: string, maxLength: 128}
     IdempotencyKey:
       name: Idempotency-Key
       in: header
@@ -83,6 +961,15 @@ components:
         A replay returns the stored response with `Idempotent-Replayed: true`;
         the same key with another request is `422`, a key still in progress `409` (API-20).
       schema: {type: string, minLength: 1, maxLength: 255}
+    IfMatch:
+      name: If-Match
+      in: header
+      required: false
+      description: |
+        The `ETag` of the resource as read, e.g. `"3"` (API-23). Absent is
+        `428` `precondition.required`; another version than the current one is
+        `412` `precondition.failed`: read the resource again and reapply.
+      schema: {type: string, maxLength: 64}
     XRequestId:
       name: X-Request-ID
       in: header
@@ -116,7 +1003,87 @@ components:
     RetryAfter:
       description: Seconds to wait before retrying (API-24).
       schema: {type: integer, minimum: 0}
+    RefreshCookie:
+      description: 'Web mode only: `fynona_refresh=<token>; Path=/v1/auth/refresh; Max-Age=<seconds>; HttpOnly; Secure; SameSite=Strict` (SEC-5).'
+      schema: {type: string}
+    RefreshCookieCleared:
+      description: Expires the `fynona_refresh` cookie (`Max-Age=0`).
+      schema: {type: string}
+    WWWAuthenticate:
+      description: '`Bearer` challenge (RFC 6750).'
+      schema: {type: string}
+    ETag:
+      description: 'The version of the resource, e.g. `"3"`; send it back in `If-Match` (API-23).'
+      schema: {type: string}
   responses:
+    Profile:
+      description: The caller's account.
+      headers:
+        X-Request-ID: {$ref: '#/components/headers/XRequestId'}
+        ETag: {$ref: '#/components/headers/ETag'}
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/Profile'}
+    Settings:
+      description: The caller's interface settings.
+      headers:
+        X-Request-ID: {$ref: '#/components/headers/XRequestId'}
+        ETag: {$ref: '#/components/headers/ETag'}
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/Settings'}
+    PreconditionFailed:
+      description: '`If-Match` is not the current version (code `precondition.failed`, API-23).'
+      headers:
+        X-Request-ID: {$ref: '#/components/headers/XRequestId'}
+      content:
+        application/problem+json:
+          schema: {$ref: '#/components/schemas/Problem'}
+    PreconditionRequired:
+      description: '`If-Match` is missing or not a version this server issued (code `precondition.required`, API-23).'
+      headers:
+        X-Request-ID: {$ref: '#/components/headers/XRequestId'}
+      content:
+        application/problem+json:
+          schema: {$ref: '#/components/schemas/Problem'}
+    Accepted:
+      description: Accepted; the answer does not say whether the email is registered (SEC-3).
+      headers:
+        X-Request-ID: {$ref: '#/components/headers/XRequestId'}
+    NoContent:
+      description: Done.
+      headers:
+        X-Request-ID: {$ref: '#/components/headers/XRequestId'}
+    Tokens:
+      description: A session's new tokens.
+      headers:
+        X-Request-ID: {$ref: '#/components/headers/XRequestId'}
+        Set-Cookie: {$ref: '#/components/headers/RefreshCookie'}
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/TokenPair'}
+    Unauthorized:
+      description: 'Missing, invalid, expired or revoked token (code `auth.unauthorized`), or a wrong email or password on login (code `auth.invalid_credentials`).'
+      headers:
+        X-Request-ID: {$ref: '#/components/headers/XRequestId'}
+        WWW-Authenticate: {$ref: '#/components/headers/WWWAuthenticate'}
+      content:
+        application/problem+json:
+          schema: {$ref: '#/components/schemas/Problem'}
+    Forbidden:
+      description: 'The password is right but the account cannot sign in: code `auth.email_unverified` or `auth.account_blocked`.'
+      headers:
+        X-Request-ID: {$ref: '#/components/headers/XRequestId'}
+      content:
+        application/problem+json:
+          schema: {$ref: '#/components/schemas/Problem'}
+    NotFound:
+      description: No such resource of the caller (code `not_found`, SEC-41).
+      headers:
+        X-Request-ID: {$ref: '#/components/headers/XRequestId'}
+      content:
+        application/problem+json:
+          schema: {$ref: '#/components/schemas/Problem'}
     Problem:
       description: RFC 9457 problem details (API-30).
       headers:
@@ -124,6 +1091,41 @@ components:
       content:
         application/problem+json:
           schema: {$ref: '#/components/schemas/Problem'}
+    MfaInvalid:
+      description: The TOTP code, recovery code or password is wrong or already used (code `auth.mfa_invalid`); it counts as a failed sign-in attempt.
+      headers:
+        X-Request-ID: {$ref: '#/components/headers/XRequestId'}
+      content:
+        application/problem+json:
+          schema: {$ref: '#/components/schemas/Problem'}
+    TotpState:
+      description: 'TOTP is already on (code `auth.totp_enabled`) or not on (code `auth.totp_not_enabled`).'
+      headers:
+        X-Request-ID: {$ref: '#/components/headers/XRequestId'}
+      content:
+        application/problem+json:
+          schema: {$ref: '#/components/schemas/Problem'}
+    PasskeyInvalid:
+      description: The passkey response fails verification or its ceremony is unknown, used or expired (code `auth.passkey_invalid`), or the body does not match this specification (code `request.invalid`).
+      headers:
+        X-Request-ID: {$ref: '#/components/headers/XRequestId'}
+      content:
+        application/problem+json:
+          schema: {$ref: '#/components/schemas/Problem'}
+    RecoveryCodes:
+      description: A new set of recovery codes; the previous set no longer works.
+      headers:
+        X-Request-ID: {$ref: '#/components/headers/XRequestId'}
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/RecoveryCodes'}
+    PasskeyCeremony:
+      description: A started WebAuthn ceremony.
+      headers:
+        X-Request-ID: {$ref: '#/components/headers/XRequestId'}
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/PasskeyCeremony'}
     BadRequest:
       description: The request does not match this specification; `errors[]` names the fields (code `request.invalid`).
       headers:
@@ -190,6 +1192,9 @@ components:
           type: string
           format: uri
           description: Where to get a supported client; set on `api_version_unsupported`.
+        entitlement:
+          type: string
+          description: 'The exceeded entitlement, e.g. `connections.max`; set on `402` `entitlement.exceeded` (MON-4).'
     FieldError:
       type: object
       required: [field, code, detail]
@@ -199,6 +1204,350 @@ components:
           description: Parameter name or JSON Pointer into the request body.
         code: {type: string}
         detail: {type: string}
+    Email:
+      type: string
+      format: email
+      minLength: 3
+      maxLength: 254
+      pattern: '^[^@\s]+@[^@\s]+$'
+      examples: [user@example.com]
+    NewPassword:
+      type: string
+      minLength: 8
+      maxLength: 256
+      description: At least 8 characters; stored only as an argon2id hash (SEC-1).
+    TokenDelivery:
+      type: string
+      enum: [body, cookie]
+      default: body
+      description: '`cookie` is web mode (SEC-5): the refresh token goes into the `fynona_refresh` cookie, not the body.'
+    RegisterRequest:
+      type: object
+      required: [email, password]
+      additionalProperties: false
+      properties:
+        email: {$ref: '#/components/schemas/Email'}
+        password: {$ref: '#/components/schemas/NewPassword'}
+    LinkTokenRequest:
+      type: object
+      required: [token]
+      additionalProperties: false
+      properties:
+        token: {type: string, minLength: 1, maxLength: 128, description: The token of the emailed link.}
+    LoginRequest:
+      type: object
+      required: [email, password]
+      additionalProperties: false
+      properties:
+        email: {$ref: '#/components/schemas/Email'}
+        password: {type: string, minLength: 1, maxLength: 256}
+        device:
+          type: string
+          maxLength: 128
+          description: A name of the device shown in the session list, e.g. `iPhone 15`.
+        token_delivery: {$ref: '#/components/schemas/TokenDelivery'}
+    RefreshRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        refresh_token: {type: string, minLength: 1, maxLength: 128}
+        token_delivery: {$ref: '#/components/schemas/TokenDelivery'}
+    PasswordResetRequest:
+      type: object
+      required: [email]
+      additionalProperties: false
+      properties:
+        email: {$ref: '#/components/schemas/Email'}
+    PasswordResetConfirm:
+      type: object
+      required: [token, password]
+      additionalProperties: false
+      properties:
+        token: {type: string, minLength: 1, maxLength: 128, description: The token of the emailed link.}
+        password: {$ref: '#/components/schemas/NewPassword'}
+    TokenPair:
+      type: object
+      required: [session_id, access_token, token_type, expires_in, refresh_expires_in]
+      properties:
+        session_id: {type: string, format: uuid}
+        access_token: {type: string, description: 'Opaque; send as `Authorization: Bearer <access_token>`.'}
+        token_type: {type: string, enum: [Bearer]}
+        expires_in: {type: integer, description: Seconds until the access token expires.}
+        refresh_token:
+          type: string
+          description: Single-use refresh token; absent in web mode, where it is in the cookie.
+        refresh_expires_in: {type: integer, description: Seconds until the refresh token expires.}
+    MfaChallenge:
+      type: object
+      required: [mfa_token, expires_in, methods]
+      properties:
+        mfa_token: {type: string, description: Single-use token for `POST /v1/auth/login/mfa`.}
+        expires_in: {type: integer, description: Seconds until the token expires.}
+        methods:
+          type: array
+          description: The second factors the account accepts.
+          items: {type: string, enum: [totp, recovery_code]}
+    TotpCode:
+      type: string
+      pattern: '^[0-9]{6}$'
+      description: Six digits from the authenticator app.
+      examples: ['123456']
+    LoginMfaRequest:
+      type: object
+      required: [mfa_token]
+      additionalProperties: false
+      description: Exactly one of `code` and `recovery_code`.
+      properties:
+        mfa_token: {type: string, minLength: 1, maxLength: 128}
+        code: {$ref: '#/components/schemas/TotpCode'}
+        recovery_code: {type: string, minLength: 1, maxLength: 32, description: 'One of the recovery codes, e.g. `ABCD-EFGH-IJKL-MNOP`; case and dashes do not matter.'}
+        token_delivery: {$ref: '#/components/schemas/TokenDelivery'}
+    TotpStatus:
+      type: object
+      required: [enabled, recovery_codes_left]
+      properties:
+        enabled: {type: boolean}
+        recovery_codes_left: {type: integer, minimum: 0}
+    TotpEnrollment:
+      type: object
+      required: [secret, otpauth_uri]
+      properties:
+        secret: {type: string, description: 'The secret in base32, for manual entry.'}
+        otpauth_uri: {type: string, description: '`otpauth://totp/...` URI for a QR code (SHA1, 6 digits, 30 seconds).'}
+    TotpCodeRequest:
+      type: object
+      required: [code]
+      additionalProperties: false
+      properties:
+        code: {$ref: '#/components/schemas/TotpCode'}
+    TotpDisableRequest:
+      type: object
+      additionalProperties: false
+      description: Exactly one of `code` and `password`.
+      properties:
+        code: {$ref: '#/components/schemas/TotpCode'}
+        password: {type: string, minLength: 1, maxLength: 256}
+    RecoveryCodes:
+      type: object
+      required: [codes]
+      properties:
+        codes:
+          type: array
+          description: Ten single-use codes; shown once, stored only as hashes.
+          items: {type: string}
+    PasskeyCeremony:
+      type: object
+      required: [ceremony_id, options]
+      properties:
+        ceremony_id: {type: string, format: uuid}
+        options:
+          type: object
+          additionalProperties: true
+          description: WebAuthn options with a `publicKey` member; binary members in base64url.
+    PasskeyRegistration:
+      type: object
+      required: [ceremony_id, credential]
+      additionalProperties: false
+      properties:
+        ceremony_id: {type: string, format: uuid}
+        name: {type: string, maxLength: 64, description: 'A name shown in the passkey list, e.g. `MacBook`.'}
+        credential:
+          type: object
+          additionalProperties: true
+          description: The `PublicKeyCredential` JSON of `navigator.credentials.create()`.
+    PasskeyLogin:
+      type: object
+      required: [ceremony_id, credential]
+      additionalProperties: false
+      properties:
+        ceremony_id: {type: string, format: uuid}
+        credential:
+          type: object
+          additionalProperties: true
+          description: The `PublicKeyCredential` JSON of `navigator.credentials.get()`.
+        device:
+          type: string
+          maxLength: 128
+          description: A name of the device shown in the session list.
+        token_delivery: {$ref: '#/components/schemas/TokenDelivery'}
+    Passkey:
+      type: object
+      required: [id, name, created_at]
+      properties:
+        id: {type: string, format: uuid}
+        name: {type: string}
+        created_at: {type: string, format: date-time}
+        last_used_at: {type: string, format: date-time}
+    PasskeyList:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: {$ref: '#/components/schemas/Passkey'}
+        next_cursor: {type: string, description: Absent on the last page; the passkey list is always one page (API-31).}
+    Session:
+      type: object
+      required: [id, device, user_agent, created_at, last_used_at, current]
+      properties:
+        id: {type: string, format: uuid}
+        device: {type: string, description: The name the client gave at sign-in; may be empty.}
+        ip: {type: string, description: The client IP of the latest sign-in or refresh.}
+        user_agent: {type: string}
+        created_at: {type: string, format: date-time}
+        last_used_at: {type: string, format: date-time}
+        current: {type: boolean, description: True for the session of this request.}
+    SessionList:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: {$ref: '#/components/schemas/Session'}
+        next_cursor: {type: string, description: Absent on the last page; the session list is always one page (API-31).}
+    Locale:
+      type: string
+      enum: [uk, ru, en]
+      description: Interface and email language (PRD-12).
+    Profile:
+      type: object
+      required: [id, email, email_verified, display_name, locale, display_currency, created_at]
+      properties:
+        id: {type: string, format: uuid}
+        email: {$ref: '#/components/schemas/Email'}
+        email_verified: {type: boolean}
+        pending_email:
+          allOf: [{$ref: '#/components/schemas/Email'}]
+          description: A new address awaiting its confirmation link; absent when none.
+        display_name: {type: string, maxLength: 100}
+        locale: {$ref: '#/components/schemas/Locale'}
+        display_currency:
+          type: string
+          pattern: '^[A-Z]{3}$'
+          description: ISO 4217 code totals are shown in.
+          examples: [UAH]
+        created_at: {type: string, format: date-time}
+    ProfileUpdate:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        display_name: {type: string, maxLength: 100}
+        locale: {$ref: '#/components/schemas/Locale'}
+        display_currency: {type: string, pattern: '^[A-Z]{3}$'}
+    EmailChangeRequest:
+      type: object
+      additionalProperties: false
+      required: [email]
+      description: >-
+        The address to move to, and the re-authentication of
+        `DeleteAccountRequest`: either `password` (with `code` or
+        `recovery_code` when TOTP is on) or `ceremony_id` with `credential`.
+      properties:
+        email: {$ref: '#/components/schemas/Email'}
+        password: {type: string, maxLength: 256}
+        code: {$ref: '#/components/schemas/TotpCode'}
+        recovery_code: {type: string, maxLength: 64}
+        ceremony_id: {type: string, format: uuid}
+        credential:
+          type: object
+          additionalProperties: true
+          description: The `PublicKeyCredential` JSON of `navigator.credentials.get()`.
+    Theme:
+      type: string
+      enum: [system, light, dark]
+      description: Colour theme; `system` follows the device (CLI-33).
+    Settings:
+      type: object
+      required: [theme, reduce_blur, high_contrast, large_text]
+      properties:
+        theme: {$ref: '#/components/schemas/Theme'}
+        reduce_blur: {type: boolean, description: The mode without glass blur.}
+        high_contrast: {type: boolean}
+        large_text: {type: boolean}
+    SettingsUpdate:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        theme: {$ref: '#/components/schemas/Theme'}
+        reduce_blur: {type: boolean}
+        high_contrast: {type: boolean}
+        large_text: {type: boolean}
+    DeleteAccountRequest:
+      type: object
+      additionalProperties: false
+      description: Either `password` (with `code` or `recovery_code` when TOTP is on) or `ceremony_id` with `credential`.
+      properties:
+        password: {type: string, maxLength: 256}
+        code: {$ref: '#/components/schemas/TotpCode'}
+        recovery_code: {type: string, maxLength: 64}
+        ceremony_id: {type: string, format: uuid}
+        credential:
+          type: object
+          additionalProperties: true
+          description: The `PublicKeyCredential` JSON of `navigator.credentials.get()`.
+    Export:
+      type: object
+      required: [id, status, created_at]
+      properties:
+        id: {type: string, format: uuid}
+        status:
+          type: string
+          enum: [pending, ready, failed, expired]
+          description: '`ready` can be downloaded until `expires_at`; then it is `expired`.'
+        created_at: {type: string, format: date-time}
+        finished_at: {type: string, format: date-time}
+        expires_at: {type: string, format: date-time}
+    ExportArchive:
+      type: object
+      required: [format, generated_at]
+      additionalProperties: true
+      description: 'Machine-readable archive of the user''s data: `account`, `settings`, `subscriptions`, `sessions`, `passkeys`, `two_factor`, `audit`.'
+      properties:
+        format: {type: string, enum: [fynona-export-v1]}
+        generated_at: {type: string, format: date-time}
+    EntitlementValues:
+      type: object
+      additionalProperties: true
+      description: |
+        Entitlement name to value (MON-1): a boolean is a feature, an integer a
+        limit (`null` means no limit), a list of strings a set of options such
+        as export formats. Names: `profiles.max`, `connections.max`,
+        `connectors.business`, `history.months`, `sync.min_interval` (seconds),
+        `exports`, `ai.analyses_per_month`, `investments.rebalance`.
+    Plan:
+      type: object
+      required: [code, name, entitlements]
+      properties:
+        code: {type: string, examples: [free]}
+        name: {type: string}
+        entitlements: {$ref: '#/components/schemas/EntitlementValues'}
+    PlanList:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: {$ref: '#/components/schemas/Plan'}
+        next_cursor: {type: string, description: Absent on the last page; the plan list is always one page (API-31).}
+    Subscription:
+      type: object
+      required: [plan]
+      properties:
+        plan: {type: string}
+        source:
+          type: string
+          enum: [manual, web, app_store, google_play]
+          description: The payment source (MON-5); absent for the default Free plan.
+        starts_at: {type: string, format: date-time}
+        ends_at: {type: string, format: date-time, description: Absent for an open-ended subscription.}
+    Entitlements:
+      type: object
+      required: [plan, entitlements]
+      properties:
+        plan: {type: string}
+        entitlements: {$ref: '#/components/schemas/EntitlementValues'}
     Environment:
       type: string
       enum: [local, sandbox, production]

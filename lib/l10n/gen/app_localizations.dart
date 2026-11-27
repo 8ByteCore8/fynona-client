@@ -321,6 +321,282 @@ abstract class AppLocalizations {
   /// In uk, this message translates to:
   /// **'Спробувати ще раз'**
   String get serverBehindRetry;
+
+  /// Field label: email address.
+  ///
+  /// In uk, this message translates to:
+  /// **'Електронна пошта'**
+  String get authEmail;
+
+  /// Field label: password.
+  ///
+  /// In uk, this message translates to:
+  /// **'Пароль'**
+  String get authPassword;
+
+  /// Field label: a new password (at least 8 characters).
+  ///
+  /// In uk, this message translates to:
+  /// **'Новий пароль (щонайменше 8 символів)'**
+  String get authNewPassword;
+
+  /// Title of the sign-in screen.
+  ///
+  /// In uk, this message translates to:
+  /// **'Вхід'**
+  String get authSignInTitle;
+
+  /// Button: sign in with email and password.
+  ///
+  /// In uk, this message translates to:
+  /// **'Увійти'**
+  String get authSignInAction;
+
+  /// Title of the sign-up screen.
+  ///
+  /// In uk, this message translates to:
+  /// **'Реєстрація'**
+  String get authSignUpTitle;
+
+  /// Button: create the account.
+  ///
+  /// In uk, this message translates to:
+  /// **'Зареєструватися'**
+  String get authSignUpAction;
+
+  /// Link from sign-in to sign-up.
+  ///
+  /// In uk, this message translates to:
+  /// **'Немає акаунта? Зареєструватися'**
+  String get authToSignUp;
+
+  /// Link back to the sign-in screen.
+  ///
+  /// In uk, this message translates to:
+  /// **'Уже маєте акаунт? Увійти'**
+  String get authToSignIn;
+
+  /// Button back to the sign-in screen.
+  ///
+  /// In uk, this message translates to:
+  /// **'До входу'**
+  String get authBackToSignIn;
+
+  /// Link to the password reset request.
+  ///
+  /// In uk, this message translates to:
+  /// **'Забули пароль?'**
+  String get authForgotPassword;
+
+  /// Button: sign in with a passkey (web).
+  ///
+  /// In uk, this message translates to:
+  /// **'Увійти з ключем доступу'**
+  String get authPasskeySignIn;
+
+  /// Error: the passkey sign-in was cancelled or refused.
+  ///
+  /// In uk, this message translates to:
+  /// **'Не вдалося увійти з ключем доступу'**
+  String get authPasskeyFailed;
+
+  /// Error: wrong email or password; the same text whether or not the email exists.
+  ///
+  /// In uk, this message translates to:
+  /// **'Неправильна пошта або пароль'**
+  String get authInvalidCredentials;
+
+  /// Error: the email address is not confirmed yet.
+  ///
+  /// In uk, this message translates to:
+  /// **'Спершу підтвердіть пошту за посиланням з листа'**
+  String get authEmailUnverified;
+
+  /// Error: the account is blocked.
+  ///
+  /// In uk, this message translates to:
+  /// **'Акаунт заблоковано. Зверніться до підтримки'**
+  String get authAccountBlocked;
+
+  /// Error: too many attempts, wait and retry.
+  ///
+  /// In uk, this message translates to:
+  /// **'Забагато спроб. Спробуйте пізніше'**
+  String get authRateLimited;
+
+  /// Error: no connection to the server.
+  ///
+  /// In uk, this message translates to:
+  /// **'Немає звʼязку з сервером. Спробуйте ще раз'**
+  String get authNetworkError;
+
+  /// Error: anything else.
+  ///
+  /// In uk, this message translates to:
+  /// **'Щось пішло не так. Спробуйте ще раз'**
+  String get authUnknownError;
+
+  /// Validation: not an email address.
+  ///
+  /// In uk, this message translates to:
+  /// **'Введіть адресу пошти'**
+  String get authEmailInvalid;
+
+  /// Validation: empty password.
+  ///
+  /// In uk, this message translates to:
+  /// **'Введіть пароль'**
+  String get authPasswordRequired;
+
+  /// Validation: password under 8 characters.
+  ///
+  /// In uk, this message translates to:
+  /// **'Щонайменше 8 символів'**
+  String get authPasswordTooShort;
+
+  /// Title: the confirmation email is on its way.
+  ///
+  /// In uk, this message translates to:
+  /// **'Перевірте пошту'**
+  String get authVerifyPendingTitle;
+
+  /// Body after sign-up; the same text whether or not the email was already registered.
+  ///
+  /// In uk, this message translates to:
+  /// **'Ми надіслали лист на {email}. Перейдіть за посиланням у ньому, щоб завершити реєстрацію.'**
+  String authVerifyPendingMessage(String email);
+
+  /// Hint under «check your email»: the app cannot resend the email, so the user checks spam or signs up again.
+  ///
+  /// In uk, this message translates to:
+  /// **'Листа немає? Перевірте вхідні та теку «Спам» або поверніться й зареєструйтеся ще раз.'**
+  String get authVerifyPendingHint;
+
+  /// Button: back to the sign-up form to register again.
+  ///
+  /// In uk, this message translates to:
+  /// **'Зареєструватися ще раз'**
+  String get authSignUpAgain;
+
+  /// Title of the email confirmation screen.
+  ///
+  /// In uk, this message translates to:
+  /// **'Підтвердження пошти'**
+  String get authVerifyTitle;
+
+  /// Message: the email is confirmed.
+  ///
+  /// In uk, this message translates to:
+  /// **'Пошту підтверджено. Тепер можна увійти'**
+  String get authVerifyDone;
+
+  /// Error: the emailed link is used, expired or wrong.
+  ///
+  /// In uk, this message translates to:
+  /// **'Посилання недійсне або застаріло'**
+  String get authLinkInvalid;
+
+  /// Title of the password reset request screen.
+  ///
+  /// In uk, this message translates to:
+  /// **'Відновлення пароля'**
+  String get authForgotTitle;
+
+  /// Button: email a password reset link.
+  ///
+  /// In uk, this message translates to:
+  /// **'Надіслати посилання'**
+  String get authForgotSend;
+
+  /// Message after a reset request; the same text whether or not the email exists.
+  ///
+  /// In uk, this message translates to:
+  /// **'Якщо акаунт з цією поштою існує, ми надіслали на неї посилання для нового пароля.'**
+  String get authForgotSent;
+
+  /// Title of the new password screen.
+  ///
+  /// In uk, this message translates to:
+  /// **'Новий пароль'**
+  String get authResetTitle;
+
+  /// Button: save the new password.
+  ///
+  /// In uk, this message translates to:
+  /// **'Зберегти пароль'**
+  String get authResetAction;
+
+  /// Message: the password is changed.
+  ///
+  /// In uk, this message translates to:
+  /// **'Пароль змінено. Увійдіть з новим паролем'**
+  String get authResetDone;
+
+  /// Title of the second-factor screen.
+  ///
+  /// In uk, this message translates to:
+  /// **'Підтвердження входу'**
+  String get authMfaTitle;
+
+  /// Field label: six-digit code from the authenticator app.
+  ///
+  /// In uk, this message translates to:
+  /// **'Код із застосунку автентифікації'**
+  String get authMfaCode;
+
+  /// Field label: a recovery code.
+  ///
+  /// In uk, this message translates to:
+  /// **'Резервний код'**
+  String get authMfaRecoveryCode;
+
+  /// Link: enter a recovery code instead.
+  ///
+  /// In uk, this message translates to:
+  /// **'Використати резервний код'**
+  String get authMfaUseRecovery;
+
+  /// Link: enter an authenticator code instead.
+  ///
+  /// In uk, this message translates to:
+  /// **'Використати код із застосунку'**
+  String get authMfaUseCode;
+
+  /// Validation: the code is not six digits.
+  ///
+  /// In uk, this message translates to:
+  /// **'Введіть 6 цифр'**
+  String get authMfaCodeInvalid;
+
+  /// Error: wrong or used code.
+  ///
+  /// In uk, this message translates to:
+  /// **'Неправильний код'**
+  String get authMfaInvalid;
+
+  /// Error: the second-factor step expired; sign in again.
+  ///
+  /// In uk, this message translates to:
+  /// **'Час вийшов. Увійдіть ще раз'**
+  String get authMfaExpired;
+
+  /// Button: confirm the code.
+  ///
+  /// In uk, this message translates to:
+  /// **'Підтвердити'**
+  String get authMfaAction;
+
+  /// Screen-reader label while the saved session is resumed.
+  ///
+  /// In uk, this message translates to:
+  /// **'Відновлення сесії'**
+  String get authLoading;
+
+  /// Button: sign out on this device.
+  ///
+  /// In uk, this message translates to:
+  /// **'Вийти'**
+  String get authSignOut;
 }
 
 class _AppLocalizationsDelegate

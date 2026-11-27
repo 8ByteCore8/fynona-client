@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import 'api/contract.dart';
+import 'auth/auth.dart';
 import 'l10n/gen/app_localizations.dart';
 import 'settings/appearance.dart';
 import 'shell/contract_gate.dart';
@@ -32,8 +33,12 @@ class FynonaApp extends ConsumerStatefulWidget {
 }
 
 class _FynonaAppState extends ConsumerState<FynonaApp> {
+  /// The auth state as the router's guard sees it.
+  late final _auth = ValueNotifier(ref.read(authStateProvider));
+
   late final GoRouter _router = buildRouter(
     initialLocation: widget.initialLocation,
+    auth: _auth,
   );
 
   /// Checks the API contract again on every return from the background
@@ -52,11 +57,13 @@ class _FynonaAppState extends ConsumerState<FynonaApp> {
   void dispose() {
     _lifecycle.dispose();
     _router.dispose();
+    _auth.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(authStateProvider, (_, next) => _auth.value = next);
     final appearance = ref.watch(appearanceProvider);
     final highContrast = appearance.highContrast;
     return MaterialApp.router(
@@ -85,7 +92,35 @@ class _FynonaAppState extends ConsumerState<FynonaApp> {
             noGlass: appearance.noGlass,
             blurSupported: ref.watch(blurSupportedProvider),
           ),
-          child: ContractGate(child: GlassAutoDegrade(child: child!)),
+          child: ContractGate(
+            child: AuthGate(child: GlassAutoDegrade(child: child!)),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Key of the screen shown while the saved session is resumed.
+const authLoadingKey = ValueKey('auth-loading');
+
+/// Hides the app behind a progress indicator until the saved session is
+/// resumed or found missing; the router guard takes over from there.
+class AuthGate extends ConsumerWidget {
+  const AuthGate({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (ref.watch(authStateProvider) != AuthState.unknown) return child;
+    return Scaffold(
+      key: authLoadingKey,
+      backgroundColor: context.fynonaColors.backgroundBase,
+      body: Center(
+        child: Semantics(
+          label: AppLocalizations.of(context).authLoading,
+          child: const CircularProgressIndicator(),
         ),
       ),
     );

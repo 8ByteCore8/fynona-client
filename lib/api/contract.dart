@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fynona_api/fynona_api.dart';
+import 'package:fynona_api/fynona_api.dart' hide Locale, Theme;
 
 import 'api.dart';
 

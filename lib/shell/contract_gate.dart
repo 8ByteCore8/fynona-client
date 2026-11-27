@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fynona_api/fynona_api.dart';
+import 'package:fynona_api/fynona_api.dart' hide Locale, Theme;
 import 'package:fynona_ui/fynona_ui.dart';
 import 'package:material_ui/material_ui.dart';
 

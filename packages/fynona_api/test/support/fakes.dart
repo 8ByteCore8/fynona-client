@@ -7,12 +7,21 @@ import 'package:fynona_api/fynona_api.dart';
 
 /// One request as the fake adapter saw it.
 final class SeenRequest {
-  SeenRequest(this.method, this.path, this.headers, this.body);
+  SeenRequest(
+    this.method,
+    this.path,
+    this.headers,
+    this.body, {
+    this.extra = const {},
+  });
 
   final String method;
   final String path;
   final Map<String, Object?> headers;
   final String? body;
+
+  /// Request extras, e.g. `withCredentials` for the browser adapter.
+  final Map<String, Object?> extra;
 }
 
 typedef Responder = ResponseBody Function(SeenRequest request);
@@ -39,6 +48,7 @@ final class FakeAdapter implements HttpClientAdapter {
       options.uri.path,
       Map.of(options.headers),
       body,
+      extra: Map.of(options.extra),
     );
     requests.add(request);
     final index = min(requests.length - 1, responders.length - 1);
