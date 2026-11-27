@@ -348,5 +348,435 @@
   "authSignOut": "Вийти",
   "@authSignOut": {
     "description": "Button: sign out on this device."
+  },
+  "moreAccount": "Акаунт",
+  "@moreAccount": {
+    "description": "Account and security screens: moreAccount."
+  },
+  "commonCancel": "Скасувати",
+  "@commonCancel": {
+    "description": "Account and security screens: commonCancel."
+  },
+  "commonClose": "Закрити",
+  "@commonClose": {
+    "description": "Account and security screens: commonClose."
+  },
+  "commonConfirm": "Підтвердити",
+  "@commonConfirm": {
+    "description": "Account and security screens: commonConfirm."
+  },
+  "commonCopied": "Скопійовано",
+  "@commonCopied": {
+    "description": "Account and security screens: commonCopied."
+  },
+  "commonCopy": "Копіювати",
+  "@commonCopy": {
+    "description": "Account and security screens: commonCopy."
+  },
+  "commonDelete": "Видалити",
+  "@commonDelete": {
+    "description": "Account and security screens: commonDelete."
+  },
+  "commonDone": "Готово",
+  "@commonDone": {
+    "description": "Account and security screens: commonDone."
+  },
+  "commonRetry": "Повторити",
+  "@commonRetry": {
+    "description": "Account and security screens: commonRetry."
+  },
+  "commonSave": "Зберегти",
+  "@commonSave": {
+    "description": "Account and security screens: commonSave."
+  },
+  "commonSavedTo": "Збережено: {where}",
+  "@commonSavedTo": {
+    "description": "File name or path of a saved file.",
+    "placeholders": {
+      "where": {
+        "type": "String",
+        "example": "fynona-export.json"
+      }
+    }
+  },
+  "commonSaveFailed": "Не вдалося зберегти файл",
+  "@commonSaveFailed": {
+    "description": "Account and security screens: commonSaveFailed."
+  },
+  "securitySessions": "Сесії",
+  "@securitySessions": {
+    "description": "Account and security screens: securitySessions."
+  },
+  "securitySessionThisDevice": "Цей пристрій",
+  "@securitySessionThisDevice": {
+    "description": "Account and security screens: securitySessionThisDevice."
+  },
+  "securitySessionUnknownDevice": "Невідомий пристрій",
+  "@securitySessionUnknownDevice": {
+    "description": "Account and security screens: securitySessionUnknownDevice."
+  },
+  "securitySessionLastUsed": "востаннє {date}",
+  "@securitySessionLastUsed": {
+    "description": "Date and time of the session's last use.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "27 лист. 2026 р., 14:05"
+      }
+    }
+  },
+  "securitySessionRevoke": "Завершити сесію",
+  "@securitySessionRevoke": {
+    "description": "Account and security screens: securitySessionRevoke."
+  },
+  "securitySessionsRevokeOthers": "Вийти на інших пристроях",
+  "@securitySessionsRevokeOthers": {
+    "description": "Account and security screens: securitySessionsRevokeOthers."
+  },
+  "securitySessionsRevokeOthersConfirm": "Завершити всі сесії, крім цієї? На інших пристроях доведеться увійти знову.",
+  "@securitySessionsRevokeOthersConfirm": {
+    "description": "Account and security screens: securitySessionsRevokeOthersConfirm."
+  },
+  "securityTotp": "Двофакторна автентифікація",
+  "@securityTotp": {
+    "description": "Account and security screens: securityTotp."
+  },
+  "securityTotpOff": "Вимкнено",
+  "@securityTotpOff": {
+    "description": "Account and security screens: securityTotpOff."
+  },
+  "securityTotpOffHint": "Код із застосунку-автентифікатора під час входу",
+  "@securityTotpOffHint": {
+    "description": "Account and security screens: securityTotpOffHint."
+  },
+  "securityTotpOn": "Увімкнено",
+  "@securityTotpOn": {
+    "description": "Account and security screens: securityTotpOn."
+  },
+  "securityRecoveryCodesLeft": "Резервних кодів залишилось: {count}",
+  "@securityRecoveryCodesLeft": {
+    "description": "Unused recovery codes.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "8"
+      }
+    }
+  },
+  "securityTotpEnable": "Увімкнути",
+  "@securityTotpEnable": {
+    "description": "Account and security screens: securityTotpEnable."
+  },
+  "securityTotpDisable": "Вимкнути 2FA",
+  "@securityTotpDisable": {
+    "description": "Account and security screens: securityTotpDisable."
+  },
+  "securityTotpDisableConfirm": "Вхід знову буде лише за паролем. Підтвердіть кодом із застосунку або паролем.",
+  "@securityTotpDisableConfirm": {
+    "description": "Account and security screens: securityTotpDisableConfirm."
+  },
+  "securityTotpOrPassword": "Або пароль",
+  "@securityTotpOrPassword": {
+    "description": "Account and security screens: securityTotpOrPassword."
+  },
+  "securityTotpRegenerate": "Нові резервні коди",
+  "@securityTotpRegenerate": {
+    "description": "Account and security screens: securityTotpRegenerate."
+  },
+  "securityTotpRegenerateHint": "Старі коди перестануть діяти. Введіть код із застосунку.",
+  "@securityTotpRegenerateHint": {
+    "description": "Account and security screens: securityTotpRegenerateHint."
+  },
+  "securityTotpCode": "Код із застосунку",
+  "@securityTotpCode": {
+    "description": "Account and security screens: securityTotpCode."
+  },
+  "securityTotpCodeInvalid": "Шість цифр",
+  "@securityTotpCodeInvalid": {
+    "description": "Account and security screens: securityTotpCodeInvalid."
+  },
+  "securityPasskeys": "Ключі доступу",
+  "@securityPasskeys": {
+    "description": "Account and security screens: securityPasskeys."
+  },
+  "securityPasskeysEmpty": "Ключів доступу ще немає",
+  "@securityPasskeysEmpty": {
+    "description": "Account and security screens: securityPasskeysEmpty."
+  },
+  "securityPasskeyAdd": "Додати ключ доступу",
+  "@securityPasskeyAdd": {
+    "description": "Account and security screens: securityPasskeyAdd."
+  },
+  "securityPasskeyName": "Назва, наприклад MacBook",
+  "@securityPasskeyName": {
+    "description": "Account and security screens: securityPasskeyName."
+  },
+  "securityPasskeyCreated": "Додано {date}",
+  "@securityPasskeyCreated": {
+    "description": "When the passkey was added.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "27 лист. 2026 р., 14:05"
+      }
+    }
+  },
+  "securityPasskeyDeleteConfirm": "Видалити ключ доступу «{name}»? Увійти з ним більше не вийде.",
+  "@securityPasskeyDeleteConfirm": {
+    "description": "Name of the passkey.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "MacBook"
+      }
+    }
+  },
+  "totpSetupTitle": "Увімкнення 2FA",
+  "@totpSetupTitle": {
+    "description": "Account and security screens: totpSetupTitle."
+  },
+  "totpSetupScan": "Відскануйте QR-код застосунком-автентифікатором або введіть ключ вручну, потім введіть код, який він покаже.",
+  "@totpSetupScan": {
+    "description": "Account and security screens: totpSetupScan."
+  },
+  "totpSetupQrLabel": "QR-код для застосунку-автентифікатора",
+  "@totpSetupQrLabel": {
+    "description": "Account and security screens: totpSetupQrLabel."
+  },
+  "totpSetupManualKey": "Ключ для введення вручну",
+  "@totpSetupManualKey": {
+    "description": "Account and security screens: totpSetupManualKey."
+  },
+  "recoveryCodesTitle": "Резервні коди",
+  "@recoveryCodesTitle": {
+    "description": "Account and security screens: recoveryCodesTitle."
+  },
+  "recoveryCodesHint": "Збережіть ці коди в надійному місці: кожен один раз відкриває вхід без телефона. Більше їх не буде показано.",
+  "@recoveryCodesHint": {
+    "description": "Account and security screens: recoveryCodesHint."
+  },
+  "accountProfile": "Профіль",
+  "@accountProfile": {
+    "description": "Account and security screens: accountProfile."
+  },
+  "accountDisplayName": "Ім'я",
+  "@accountDisplayName": {
+    "description": "Account and security screens: accountDisplayName."
+  },
+  "accountLocale": "Мова",
+  "@accountLocale": {
+    "description": "Account and security screens: accountLocale."
+  },
+  "accountCurrency": "Валюта підсумків",
+  "@accountCurrency": {
+    "description": "Account and security screens: accountCurrency."
+  },
+  "accountCurrencyInvalid": "Код валюти з трьох латинських літер, наприклад UAH",
+  "@accountCurrencyInvalid": {
+    "description": "Account and security screens: accountCurrencyInvalid."
+  },
+  "accountSaved": "Збережено",
+  "@accountSaved": {
+    "description": "Account and security screens: accountSaved."
+  },
+  "accountConflict": "Акаунт змінено в іншому місці. Дані оновлено — внесіть зміни ще раз.",
+  "@accountConflict": {
+    "description": "Account and security screens: accountConflict."
+  },
+  "accountEmail": "Пошта",
+  "@accountEmail": {
+    "description": "Account and security screens: accountEmail."
+  },
+  "accountEmailPending": "Очікує підтвердження: {email}. Відкрийте посилання з листа.",
+  "@accountEmailPending": {
+    "description": "The new address awaiting its link.",
+    "placeholders": {
+      "email": {
+        "type": "String",
+        "example": "new@example.com"
+      }
+    }
+  },
+  "accountEmailChange": "Змінити пошту",
+  "@accountEmailChange": {
+    "description": "Account and security screens: accountEmailChange."
+  },
+  "accountEmailNew": "Нова пошта",
+  "@accountEmailNew": {
+    "description": "Account and security screens: accountEmailNew."
+  },
+  "accountReauthHint": "Підтвердіть, що це ви: пароль і, якщо 2FA увімкнено, код або резервний код.",
+  "@accountReauthHint": {
+    "description": "Account and security screens: accountReauthHint."
+  },
+  "accountReauthCode": "Код 2FA або резервний код",
+  "@accountReauthCode": {
+    "description": "Account and security screens: accountReauthCode."
+  },
+  "accountExport": "Експорт даних",
+  "@accountExport": {
+    "description": "Account and security screens: accountExport."
+  },
+  "accountExportHint": "Архів усіх ваших даних у форматі JSON.",
+  "@accountExportHint": {
+    "description": "Account and security screens: accountExportHint."
+  },
+  "accountExportStart": "Почати експорт",
+  "@accountExportStart": {
+    "description": "Account and security screens: accountExportStart."
+  },
+  "accountExportPending": "Готуємо архів…",
+  "@accountExportPending": {
+    "description": "Account and security screens: accountExportPending."
+  },
+  "accountExportReady": "Архів готовий",
+  "@accountExportReady": {
+    "description": "Account and security screens: accountExportReady."
+  },
+  "accountExportReadyUntil": "Архів готовий, доступний до {date}",
+  "@accountExportReadyUntil": {
+    "description": "When the download link expires.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "27 лист. 2026 р., 15:05"
+      }
+    }
+  },
+  "accountExportDownload": "Завантажити",
+  "@accountExportDownload": {
+    "description": "Account and security screens: accountExportDownload."
+  },
+  "accountExportFailed": "Експорт не вдався. Спробуйте ще раз.",
+  "@accountExportFailed": {
+    "description": "Account and security screens: accountExportFailed."
+  },
+  "accountExportExpired": "Архів більше недоступний. Почніть новий експорт.",
+  "@accountExportExpired": {
+    "description": "Account and security screens: accountExportExpired."
+  },
+  "accountDanger": "Видалення акаунта",
+  "@accountDanger": {
+    "description": "Account and security screens: accountDanger."
+  },
+  "accountDelete": "Видалити акаунт",
+  "@accountDelete": {
+    "description": "Account and security screens: accountDelete."
+  },
+  "accountDeleteWarning": "Акаунт і всі дані буде видалено назавжди. Цю дію не можна скасувати.",
+  "@accountDeleteWarning": {
+    "description": "Account and security screens: accountDeleteWarning."
+  },
+  "accountDeleteType": "Щоб підтвердити, введіть {email}",
+  "@accountDeleteType": {
+    "description": "The account's email address.",
+    "placeholders": {
+      "email": {
+        "type": "String",
+        "example": "user@example.com"
+      }
+    }
+  },
+  "languageUk": "Українська",
+  "@languageUk": {
+    "description": "Account and security screens: languageUk."
+  },
+  "languageRu": "Русский",
+  "@languageRu": {
+    "description": "Account and security screens: languageRu."
+  },
+  "languageEn": "English",
+  "@languageEn": {
+    "description": "Account and security screens: languageEn."
+  },
+  "subscriptionPlan": "Тариф: {name}",
+  "@subscriptionPlan": {
+    "description": "Name of the current plan.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Free"
+      }
+    }
+  },
+  "subscriptionEntitlements": "Що входить",
+  "@subscriptionEntitlements": {
+    "description": "Account and security screens: subscriptionEntitlements."
+  },
+  "entitlementProfilesMax": "Профілі",
+  "@entitlementProfilesMax": {
+    "description": "Account and security screens: entitlementProfilesMax."
+  },
+  "entitlementConnectionsMax": "Підключення",
+  "@entitlementConnectionsMax": {
+    "description": "Account and security screens: entitlementConnectionsMax."
+  },
+  "entitlementConnectorsBusiness": "Бізнес-підключення",
+  "@entitlementConnectorsBusiness": {
+    "description": "Account and security screens: entitlementConnectorsBusiness."
+  },
+  "entitlementHistoryMonths": "Історія, місяців",
+  "@entitlementHistoryMonths": {
+    "description": "Account and security screens: entitlementHistoryMonths."
+  },
+  "entitlementSyncMinInterval": "Синхронізація не частіше ніж",
+  "@entitlementSyncMinInterval": {
+    "description": "Account and security screens: entitlementSyncMinInterval."
+  },
+  "entitlementExports": "Формати вивантаження",
+  "@entitlementExports": {
+    "description": "Account and security screens: entitlementExports."
+  },
+  "entitlementAiAnalyses": "AI-аналізи на місяць",
+  "@entitlementAiAnalyses": {
+    "description": "Account and security screens: entitlementAiAnalyses."
+  },
+  "entitlementInvestmentsRebalance": "Ребалансування портфеля",
+  "@entitlementInvestmentsRebalance": {
+    "description": "Account and security screens: entitlementInvestmentsRebalance."
+  },
+  "entitlementUnlimited": "Без обмежень",
+  "@entitlementUnlimited": {
+    "description": "Account and security screens: entitlementUnlimited."
+  },
+  "entitlementYes": "Так",
+  "@entitlementYes": {
+    "description": "Account and security screens: entitlementYes."
+  },
+  "entitlementNo": "Ні",
+  "@entitlementNo": {
+    "description": "Account and security screens: entitlementNo."
+  },
+  "entitlementMinutes": "{count} хв",
+  "@entitlementMinutes": {
+    "description": "Minutes.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "15"
+      }
+    }
+  },
+  "planOfferTitle": "Ліміт тарифу вичерпано",
+  "@planOfferTitle": {
+    "description": "Account and security screens: planOfferTitle."
+  },
+  "planOfferMessage": "«{entitlement}» на вашому тарифі вичерпано. Більше дають тарифи нижче.",
+  "@planOfferMessage": {
+    "description": "Display name of the exceeded entitlement.",
+    "placeholders": {
+      "entitlement": {
+        "type": "String",
+        "example": "Підключення"
+      }
+    }
+  },
+  "planOfferMessageUnknown": "Ця дія не входить у ваш тариф.",
+  "@planOfferMessageUnknown": {
+    "description": "Account and security screens: planOfferMessageUnknown."
+  },
+  "planOfferSeePlans": "Мій тариф",
+  "@planOfferSeePlans": {
+    "description": "Account and security screens: planOfferSeePlans."
   }
 }

@@ -1,15 +1,21 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fynona_ui/fynona_ui.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../auth/auth.dart';
 import '../l10n/gen/app_localizations.dart';
 import '../settings/appearance.dart';
+import '../shell/router.dart';
 
 /// Key of the sign-out entry.
 const signOutKey = ValueKey('more-sign-out');
 
-/// Ще (CLI-12): section entries (placeholders) and the appearance switches.
+/// Key of the entry that opens [path].
+ValueKey<String> moreEntryKey(String path) => ValueKey('more-entry-$path');
+
+/// Ще (CLI-12): section entries (placeholders until their stage), account,
+/// subscription and security, and the appearance switches.
 class MoreScreen extends ConsumerWidget {
   const MoreScreen({super.key});
 
@@ -23,16 +29,17 @@ class MoreScreen extends ConsumerWidget {
     void comingSoon() =>
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(l.comingSoon)));
-    final sections = [
-      (Icons.account_circle_outlined, l.moreProfiles),
-      (Icons.account_balance_outlined, l.moreConnections),
-      (Icons.category_outlined, l.moreCategories),
-      (Icons.fact_check_outlined, l.moreReconciliation),
-      (Icons.trending_up_rounded, l.moreInvestments),
-      (Icons.file_download_outlined, l.moreExports),
-      (Icons.workspace_premium_outlined, l.moreSubscription),
-      (Icons.shield_outlined, l.moreSecurity),
-      (Icons.info_outline_rounded, l.moreAbout),
+    final sections = <(IconData, String, String?)>[
+      (Icons.account_circle_outlined, l.moreProfiles, null),
+      (Icons.account_balance_outlined, l.moreConnections, null),
+      (Icons.category_outlined, l.moreCategories, null),
+      (Icons.fact_check_outlined, l.moreReconciliation, null),
+      (Icons.trending_up_rounded, l.moreInvestments, null),
+      (Icons.file_download_outlined, l.moreExports, null),
+      (Icons.workspace_premium_outlined, l.moreSubscription, subscriptionPath),
+      (Icons.person_outline_rounded, l.moreAccount, accountPath),
+      (Icons.shield_outlined, l.moreSecurity, securityPath),
+      (Icons.info_outline_rounded, l.moreAbout, null),
     ];
     return CustomScrollView(
       slivers: [
@@ -55,11 +62,12 @@ class MoreScreen extends ConsumerWidget {
         ),
         SliverList.list(
           children: [
-            for (final (icon, title) in sections)
+            for (final (icon, title, path) in sections)
               ListTile(
+                key: path == null ? null : moreEntryKey(path),
                 leading: Icon(icon),
                 title: Text(title),
-                onTap: comingSoon,
+                onTap: path == null ? comingSoon : () => context.go(path),
               ),
             Padding(
               padding: const EdgeInsetsDirectional.only(

@@ -3,6 +3,7 @@
 /// transport (API-20, API-21, API-60…API-64).
 library;
 
+export 'src/account.dart';
 export 'src/auth.dart';
 export 'src/circuit_breaker.dart';
 export 'src/contract.dart';

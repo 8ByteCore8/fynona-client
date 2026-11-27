@@ -64,6 +64,22 @@ A `401` refreshes the tokens once (parallel requests share one refresh) and repe
 the request; a refused refresh signs out. Signing out (Ще) ends the session on the
 server and clears the stored token, the in-memory token and the cached account.
 
+## Account, security and plan (CLI-12, SEC-60, MON-3, MON-4)
+
+Under Ще (`lib/screens/account/`, providers in `lib/account/account.dart`):
+Безпека lists the sessions (device, IP, last use, «this device») and ends one or all
+others; turns TOTP on (QR code drawn with the `qr` package, manual key, first code),
+shows the recovery codes once with copy and save, issues new ones and turns TOTP off
+with a code or the password; on web it adds, lists and deletes passkeys. Акаунт edits
+the display name, language and display currency with `If-Match` (a `412` reloads),
+asks for an email change with re-authentication and shows the pending address,
+starts an export, follows it and saves the archive (browser download on web, the
+Downloads or documents folder elsewhere, through `path_provider`), and deletes the
+account after re-authentication and typing the account's email. Підписка shows the
+plan and entitlements of `GET /v1/entitlements`, for display only. Any
+`402 entitlement.exceeded` opens a plan-offer sheet naming the entitlement and the
+plans that give more of it (`lib/app.dart`, `ApiTransport.entitlementRejections`).
+
 Goldens are rendered on Linux; refresh them after a deliberate visual change with
 `flutter test --update-goldens test/golden_test.dart`.
 

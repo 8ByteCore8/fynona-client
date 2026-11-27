@@ -117,6 +117,39 @@ void main() {
       },
     );
 
+    test('a Retry-After in seconds travels with the error', () async {
+      final adapter = FakeAdapter([
+        status(
+          400,
+          json: problemJson(400, 'request.invalid'),
+          contentType: 'application/problem+json',
+          headers: {'Retry-After': '7'},
+        ),
+        status(404, contentType: 'text/plain', headers: {'Retry-After': 'x'}),
+      ]);
+      final transport = fakeTransport(adapter).transport;
+      await expectLater(
+        transport.call((a) => a.meta.getMeta()),
+        throwsA(
+          isA<ApiProblemException>().having(
+            (e) => e.retryAfter,
+            'retryAfter',
+            const Duration(seconds: 7),
+          ),
+        ),
+      );
+      await expectLater(
+        transport.call((a) => a.meta.getMeta()),
+        throwsA(
+          isA<ApiHttpException>().having(
+            (e) => e.retryAfter,
+            'retryAfter',
+            isNull,
+          ),
+        ),
+      );
+    });
+
     test('426 becomes UpgradeRequiredException with the link', () async {
       final adapter = FakeAdapter([
         status(

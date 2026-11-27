@@ -26,6 +26,26 @@ Future<Map<String, Object?>> getPasskeyAssertion(
       .get(request as web.CredentialRequestOptions)
       .toDart;
   if (credential == null) throw StateError('no passkey was chosen');
+  return _toJson(credential);
+}
+
+/// Runs `navigator.credentials.create()` with the server's registration
+/// [options] and returns the new credential as JSON. Throws when the user
+/// cancels.
+Future<Map<String, Object?>> createPasskey(Map<String, Object?> options) async {
+  final publicKey = _publicKeyCredential!.callMethod<JSObject>(
+    'parseCreationOptionsFromJSON'.toJS,
+    options['publicKey'].jsify(),
+  );
+  final request = JSObject()..['publicKey'] = publicKey;
+  final credential = await web.window.navigator.credentials
+      .create(request as web.CredentialCreationOptions)
+      .toDart;
+  if (credential == null) throw StateError('no passkey was created');
+  return _toJson(credential);
+}
+
+Map<String, Object?> _toJson(web.Credential credential) {
   final json = (credential as JSObject).callMethod<JSObject>('toJSON'.toJS);
   return Map<String, Object?>.from(json.dartify()! as Map);
 }

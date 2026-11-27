@@ -269,4 +269,310 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get authSignOut => 'Выйти';
+
+  @override
+  String get moreAccount => 'Аккаунт';
+
+  @override
+  String get commonCancel => 'Отмена';
+
+  @override
+  String get commonClose => 'Закрыть';
+
+  @override
+  String get commonConfirm => 'Подтвердить';
+
+  @override
+  String get commonCopied => 'Скопировано';
+
+  @override
+  String get commonCopy => 'Копировать';
+
+  @override
+  String get commonDelete => 'Удалить';
+
+  @override
+  String get commonDone => 'Готово';
+
+  @override
+  String get commonRetry => 'Повторить';
+
+  @override
+  String get commonSave => 'Сохранить';
+
+  @override
+  String commonSavedTo(String where) {
+    return 'Сохранено: $where';
+  }
+
+  @override
+  String get commonSaveFailed => 'Не удалось сохранить файл';
+
+  @override
+  String get securitySessions => 'Сессии';
+
+  @override
+  String get securitySessionThisDevice => 'Это устройство';
+
+  @override
+  String get securitySessionUnknownDevice => 'Неизвестное устройство';
+
+  @override
+  String securitySessionLastUsed(String date) {
+    return 'последний раз $date';
+  }
+
+  @override
+  String get securitySessionRevoke => 'Завершить сессию';
+
+  @override
+  String get securitySessionsRevokeOthers => 'Выйти на других устройствах';
+
+  @override
+  String get securitySessionsRevokeOthersConfirm =>
+      'Завершить все сессии, кроме этой? На других устройствах придётся войти снова.';
+
+  @override
+  String get securityTotp => 'Двухфакторная аутентификация';
+
+  @override
+  String get securityTotpOff => 'Выключена';
+
+  @override
+  String get securityTotpOffHint =>
+      'Код из приложения-аутентификатора при входе';
+
+  @override
+  String get securityTotpOn => 'Включена';
+
+  @override
+  String securityRecoveryCodesLeft(int count) {
+    return 'Резервных кодов осталось: $count';
+  }
+
+  @override
+  String get securityTotpEnable => 'Включить';
+
+  @override
+  String get securityTotpDisable => 'Выключить 2FA';
+
+  @override
+  String get securityTotpDisableConfirm =>
+      'Вход снова будет только по паролю. Подтвердите кодом из приложения или паролем.';
+
+  @override
+  String get securityTotpOrPassword => 'Или пароль';
+
+  @override
+  String get securityTotpRegenerate => 'Новые резервные коды';
+
+  @override
+  String get securityTotpRegenerateHint =>
+      'Старые коды перестанут работать. Введите код из приложения.';
+
+  @override
+  String get securityTotpCode => 'Код из приложения';
+
+  @override
+  String get securityTotpCodeInvalid => 'Шесть цифр';
+
+  @override
+  String get securityPasskeys => 'Ключи доступа';
+
+  @override
+  String get securityPasskeysEmpty => 'Ключей доступа пока нет';
+
+  @override
+  String get securityPasskeyAdd => 'Добавить ключ доступа';
+
+  @override
+  String get securityPasskeyName => 'Название, например MacBook';
+
+  @override
+  String securityPasskeyCreated(String date) {
+    return 'Добавлен $date';
+  }
+
+  @override
+  String securityPasskeyDeleteConfirm(String name) {
+    return 'Удалить ключ доступа «$name»? Войти с ним больше не получится.';
+  }
+
+  @override
+  String get totpSetupTitle => 'Включение 2FA';
+
+  @override
+  String get totpSetupScan =>
+      'Отсканируйте QR-код приложением-аутентификатором или введите ключ вручную, затем введите код, который оно покажет.';
+
+  @override
+  String get totpSetupQrLabel => 'QR-код для приложения-аутентификатора';
+
+  @override
+  String get totpSetupManualKey => 'Ключ для ввода вручную';
+
+  @override
+  String get recoveryCodesTitle => 'Резервные коды';
+
+  @override
+  String get recoveryCodesHint =>
+      'Сохраните эти коды в надёжном месте: каждый один раз открывает вход без телефона. Больше они показаны не будут.';
+
+  @override
+  String get accountProfile => 'Профиль';
+
+  @override
+  String get accountDisplayName => 'Имя';
+
+  @override
+  String get accountLocale => 'Язык';
+
+  @override
+  String get accountCurrency => 'Валюта итогов';
+
+  @override
+  String get accountCurrencyInvalid =>
+      'Код валюты из трёх латинских букв, например UAH';
+
+  @override
+  String get accountSaved => 'Сохранено';
+
+  @override
+  String get accountConflict =>
+      'Аккаунт изменён в другом месте. Данные обновлены — внесите изменения ещё раз.';
+
+  @override
+  String get accountEmail => 'Почта';
+
+  @override
+  String accountEmailPending(String email) {
+    return 'Ожидает подтверждения: $email. Откройте ссылку из письма.';
+  }
+
+  @override
+  String get accountEmailChange => 'Изменить почту';
+
+  @override
+  String get accountEmailNew => 'Новая почта';
+
+  @override
+  String get accountReauthHint =>
+      'Подтвердите, что это вы: пароль и, если 2FA включена, код или резервный код.';
+
+  @override
+  String get accountReauthCode => 'Код 2FA или резервный код';
+
+  @override
+  String get accountExport => 'Экспорт данных';
+
+  @override
+  String get accountExportHint => 'Архив всех ваших данных в формате JSON.';
+
+  @override
+  String get accountExportStart => 'Начать экспорт';
+
+  @override
+  String get accountExportPending => 'Готовим архив…';
+
+  @override
+  String get accountExportReady => 'Архив готов';
+
+  @override
+  String accountExportReadyUntil(String date) {
+    return 'Архив готов, доступен до $date';
+  }
+
+  @override
+  String get accountExportDownload => 'Скачать';
+
+  @override
+  String get accountExportFailed => 'Экспорт не удался. Попробуйте ещё раз.';
+
+  @override
+  String get accountExportExpired =>
+      'Архив больше недоступен. Начните новый экспорт.';
+
+  @override
+  String get accountDanger => 'Удаление аккаунта';
+
+  @override
+  String get accountDelete => 'Удалить аккаунт';
+
+  @override
+  String get accountDeleteWarning =>
+      'Аккаунт и все данные будут удалены навсегда. Это действие нельзя отменить.';
+
+  @override
+  String accountDeleteType(String email) {
+    return 'Чтобы подтвердить, введите $email';
+  }
+
+  @override
+  String get languageUk => 'Українська';
+
+  @override
+  String get languageRu => 'Русский';
+
+  @override
+  String get languageEn => 'English';
+
+  @override
+  String subscriptionPlan(String name) {
+    return 'Тариф: $name';
+  }
+
+  @override
+  String get subscriptionEntitlements => 'Что входит';
+
+  @override
+  String get entitlementProfilesMax => 'Профили';
+
+  @override
+  String get entitlementConnectionsMax => 'Подключения';
+
+  @override
+  String get entitlementConnectorsBusiness => 'Бизнес-подключения';
+
+  @override
+  String get entitlementHistoryMonths => 'История, месяцев';
+
+  @override
+  String get entitlementSyncMinInterval => 'Синхронизация не чаще чем';
+
+  @override
+  String get entitlementExports => 'Форматы выгрузки';
+
+  @override
+  String get entitlementAiAnalyses => 'AI-анализы в месяц';
+
+  @override
+  String get entitlementInvestmentsRebalance => 'Ребалансировка портфеля';
+
+  @override
+  String get entitlementUnlimited => 'Без ограничений';
+
+  @override
+  String get entitlementYes => 'Да';
+
+  @override
+  String get entitlementNo => 'Нет';
+
+  @override
+  String entitlementMinutes(int count) {
+    return '$count мин';
+  }
+
+  @override
+  String get planOfferTitle => 'Лимит тарифа исчерпан';
+
+  @override
+  String planOfferMessage(String entitlement) {
+    return '«$entitlement» на вашем тарифе исчерпан. Больше дают тарифы ниже.';
+  }
+
+  @override
+  String get planOfferMessageUnknown => 'Это действие не входит в ваш тариф.';
+
+  @override
+  String get planOfferSeePlans => 'Мой тариф';
 }

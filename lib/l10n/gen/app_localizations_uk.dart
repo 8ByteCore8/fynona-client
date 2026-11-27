@@ -268,4 +268,310 @@ class AppLocalizationsUk extends AppLocalizations {
 
   @override
   String get authSignOut => 'Вийти';
+
+  @override
+  String get moreAccount => 'Акаунт';
+
+  @override
+  String get commonCancel => 'Скасувати';
+
+  @override
+  String get commonClose => 'Закрити';
+
+  @override
+  String get commonConfirm => 'Підтвердити';
+
+  @override
+  String get commonCopied => 'Скопійовано';
+
+  @override
+  String get commonCopy => 'Копіювати';
+
+  @override
+  String get commonDelete => 'Видалити';
+
+  @override
+  String get commonDone => 'Готово';
+
+  @override
+  String get commonRetry => 'Повторити';
+
+  @override
+  String get commonSave => 'Зберегти';
+
+  @override
+  String commonSavedTo(String where) {
+    return 'Збережено: $where';
+  }
+
+  @override
+  String get commonSaveFailed => 'Не вдалося зберегти файл';
+
+  @override
+  String get securitySessions => 'Сесії';
+
+  @override
+  String get securitySessionThisDevice => 'Цей пристрій';
+
+  @override
+  String get securitySessionUnknownDevice => 'Невідомий пристрій';
+
+  @override
+  String securitySessionLastUsed(String date) {
+    return 'востаннє $date';
+  }
+
+  @override
+  String get securitySessionRevoke => 'Завершити сесію';
+
+  @override
+  String get securitySessionsRevokeOthers => 'Вийти на інших пристроях';
+
+  @override
+  String get securitySessionsRevokeOthersConfirm =>
+      'Завершити всі сесії, крім цієї? На інших пристроях доведеться увійти знову.';
+
+  @override
+  String get securityTotp => 'Двофакторна автентифікація';
+
+  @override
+  String get securityTotpOff => 'Вимкнено';
+
+  @override
+  String get securityTotpOffHint =>
+      'Код із застосунку-автентифікатора під час входу';
+
+  @override
+  String get securityTotpOn => 'Увімкнено';
+
+  @override
+  String securityRecoveryCodesLeft(int count) {
+    return 'Резервних кодів залишилось: $count';
+  }
+
+  @override
+  String get securityTotpEnable => 'Увімкнути';
+
+  @override
+  String get securityTotpDisable => 'Вимкнути 2FA';
+
+  @override
+  String get securityTotpDisableConfirm =>
+      'Вхід знову буде лише за паролем. Підтвердіть кодом із застосунку або паролем.';
+
+  @override
+  String get securityTotpOrPassword => 'Або пароль';
+
+  @override
+  String get securityTotpRegenerate => 'Нові резервні коди';
+
+  @override
+  String get securityTotpRegenerateHint =>
+      'Старі коди перестануть діяти. Введіть код із застосунку.';
+
+  @override
+  String get securityTotpCode => 'Код із застосунку';
+
+  @override
+  String get securityTotpCodeInvalid => 'Шість цифр';
+
+  @override
+  String get securityPasskeys => 'Ключі доступу';
+
+  @override
+  String get securityPasskeysEmpty => 'Ключів доступу ще немає';
+
+  @override
+  String get securityPasskeyAdd => 'Додати ключ доступу';
+
+  @override
+  String get securityPasskeyName => 'Назва, наприклад MacBook';
+
+  @override
+  String securityPasskeyCreated(String date) {
+    return 'Додано $date';
+  }
+
+  @override
+  String securityPasskeyDeleteConfirm(String name) {
+    return 'Видалити ключ доступу «$name»? Увійти з ним більше не вийде.';
+  }
+
+  @override
+  String get totpSetupTitle => 'Увімкнення 2FA';
+
+  @override
+  String get totpSetupScan =>
+      'Відскануйте QR-код застосунком-автентифікатором або введіть ключ вручну, потім введіть код, який він покаже.';
+
+  @override
+  String get totpSetupQrLabel => 'QR-код для застосунку-автентифікатора';
+
+  @override
+  String get totpSetupManualKey => 'Ключ для введення вручну';
+
+  @override
+  String get recoveryCodesTitle => 'Резервні коди';
+
+  @override
+  String get recoveryCodesHint =>
+      'Збережіть ці коди в надійному місці: кожен один раз відкриває вхід без телефона. Більше їх не буде показано.';
+
+  @override
+  String get accountProfile => 'Профіль';
+
+  @override
+  String get accountDisplayName => 'Ім\'я';
+
+  @override
+  String get accountLocale => 'Мова';
+
+  @override
+  String get accountCurrency => 'Валюта підсумків';
+
+  @override
+  String get accountCurrencyInvalid =>
+      'Код валюти з трьох латинських літер, наприклад UAH';
+
+  @override
+  String get accountSaved => 'Збережено';
+
+  @override
+  String get accountConflict =>
+      'Акаунт змінено в іншому місці. Дані оновлено — внесіть зміни ще раз.';
+
+  @override
+  String get accountEmail => 'Пошта';
+
+  @override
+  String accountEmailPending(String email) {
+    return 'Очікує підтвердження: $email. Відкрийте посилання з листа.';
+  }
+
+  @override
+  String get accountEmailChange => 'Змінити пошту';
+
+  @override
+  String get accountEmailNew => 'Нова пошта';
+
+  @override
+  String get accountReauthHint =>
+      'Підтвердіть, що це ви: пароль і, якщо 2FA увімкнено, код або резервний код.';
+
+  @override
+  String get accountReauthCode => 'Код 2FA або резервний код';
+
+  @override
+  String get accountExport => 'Експорт даних';
+
+  @override
+  String get accountExportHint => 'Архів усіх ваших даних у форматі JSON.';
+
+  @override
+  String get accountExportStart => 'Почати експорт';
+
+  @override
+  String get accountExportPending => 'Готуємо архів…';
+
+  @override
+  String get accountExportReady => 'Архів готовий';
+
+  @override
+  String accountExportReadyUntil(String date) {
+    return 'Архів готовий, доступний до $date';
+  }
+
+  @override
+  String get accountExportDownload => 'Завантажити';
+
+  @override
+  String get accountExportFailed => 'Експорт не вдався. Спробуйте ще раз.';
+
+  @override
+  String get accountExportExpired =>
+      'Архів більше недоступний. Почніть новий експорт.';
+
+  @override
+  String get accountDanger => 'Видалення акаунта';
+
+  @override
+  String get accountDelete => 'Видалити акаунт';
+
+  @override
+  String get accountDeleteWarning =>
+      'Акаунт і всі дані буде видалено назавжди. Цю дію не можна скасувати.';
+
+  @override
+  String accountDeleteType(String email) {
+    return 'Щоб підтвердити, введіть $email';
+  }
+
+  @override
+  String get languageUk => 'Українська';
+
+  @override
+  String get languageRu => 'Русский';
+
+  @override
+  String get languageEn => 'English';
+
+  @override
+  String subscriptionPlan(String name) {
+    return 'Тариф: $name';
+  }
+
+  @override
+  String get subscriptionEntitlements => 'Що входить';
+
+  @override
+  String get entitlementProfilesMax => 'Профілі';
+
+  @override
+  String get entitlementConnectionsMax => 'Підключення';
+
+  @override
+  String get entitlementConnectorsBusiness => 'Бізнес-підключення';
+
+  @override
+  String get entitlementHistoryMonths => 'Історія, місяців';
+
+  @override
+  String get entitlementSyncMinInterval => 'Синхронізація не частіше ніж';
+
+  @override
+  String get entitlementExports => 'Формати вивантаження';
+
+  @override
+  String get entitlementAiAnalyses => 'AI-аналізи на місяць';
+
+  @override
+  String get entitlementInvestmentsRebalance => 'Ребалансування портфеля';
+
+  @override
+  String get entitlementUnlimited => 'Без обмежень';
+
+  @override
+  String get entitlementYes => 'Так';
+
+  @override
+  String get entitlementNo => 'Ні';
+
+  @override
+  String entitlementMinutes(int count) {
+    return '$count хв';
+  }
+
+  @override
+  String get planOfferTitle => 'Ліміт тарифу вичерпано';
+
+  @override
+  String planOfferMessage(String entitlement) {
+    return '«$entitlement» на вашому тарифі вичерпано. Більше дають тарифи нижче.';
+  }
+
+  @override
+  String get planOfferMessageUnknown => 'Ця дія не входить у ваш тариф.';
+
+  @override
+  String get planOfferSeePlans => 'Мій тариф';
 }

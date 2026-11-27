@@ -597,6 +597,552 @@ abstract class AppLocalizations {
   /// In uk, this message translates to:
   /// **'Вийти'**
   String get authSignOut;
+
+  /// Account and security screens: moreAccount.
+  ///
+  /// In uk, this message translates to:
+  /// **'Акаунт'**
+  String get moreAccount;
+
+  /// Account and security screens: commonCancel.
+  ///
+  /// In uk, this message translates to:
+  /// **'Скасувати'**
+  String get commonCancel;
+
+  /// Account and security screens: commonClose.
+  ///
+  /// In uk, this message translates to:
+  /// **'Закрити'**
+  String get commonClose;
+
+  /// Account and security screens: commonConfirm.
+  ///
+  /// In uk, this message translates to:
+  /// **'Підтвердити'**
+  String get commonConfirm;
+
+  /// Account and security screens: commonCopied.
+  ///
+  /// In uk, this message translates to:
+  /// **'Скопійовано'**
+  String get commonCopied;
+
+  /// Account and security screens: commonCopy.
+  ///
+  /// In uk, this message translates to:
+  /// **'Копіювати'**
+  String get commonCopy;
+
+  /// Account and security screens: commonDelete.
+  ///
+  /// In uk, this message translates to:
+  /// **'Видалити'**
+  String get commonDelete;
+
+  /// Account and security screens: commonDone.
+  ///
+  /// In uk, this message translates to:
+  /// **'Готово'**
+  String get commonDone;
+
+  /// Account and security screens: commonRetry.
+  ///
+  /// In uk, this message translates to:
+  /// **'Повторити'**
+  String get commonRetry;
+
+  /// Account and security screens: commonSave.
+  ///
+  /// In uk, this message translates to:
+  /// **'Зберегти'**
+  String get commonSave;
+
+  /// File name or path of a saved file.
+  ///
+  /// In uk, this message translates to:
+  /// **'Збережено: {where}'**
+  String commonSavedTo(String where);
+
+  /// Account and security screens: commonSaveFailed.
+  ///
+  /// In uk, this message translates to:
+  /// **'Не вдалося зберегти файл'**
+  String get commonSaveFailed;
+
+  /// Account and security screens: securitySessions.
+  ///
+  /// In uk, this message translates to:
+  /// **'Сесії'**
+  String get securitySessions;
+
+  /// Account and security screens: securitySessionThisDevice.
+  ///
+  /// In uk, this message translates to:
+  /// **'Цей пристрій'**
+  String get securitySessionThisDevice;
+
+  /// Account and security screens: securitySessionUnknownDevice.
+  ///
+  /// In uk, this message translates to:
+  /// **'Невідомий пристрій'**
+  String get securitySessionUnknownDevice;
+
+  /// Date and time of the session's last use.
+  ///
+  /// In uk, this message translates to:
+  /// **'востаннє {date}'**
+  String securitySessionLastUsed(String date);
+
+  /// Account and security screens: securitySessionRevoke.
+  ///
+  /// In uk, this message translates to:
+  /// **'Завершити сесію'**
+  String get securitySessionRevoke;
+
+  /// Account and security screens: securitySessionsRevokeOthers.
+  ///
+  /// In uk, this message translates to:
+  /// **'Вийти на інших пристроях'**
+  String get securitySessionsRevokeOthers;
+
+  /// Account and security screens: securitySessionsRevokeOthersConfirm.
+  ///
+  /// In uk, this message translates to:
+  /// **'Завершити всі сесії, крім цієї? На інших пристроях доведеться увійти знову.'**
+  String get securitySessionsRevokeOthersConfirm;
+
+  /// Account and security screens: securityTotp.
+  ///
+  /// In uk, this message translates to:
+  /// **'Двофакторна автентифікація'**
+  String get securityTotp;
+
+  /// Account and security screens: securityTotpOff.
+  ///
+  /// In uk, this message translates to:
+  /// **'Вимкнено'**
+  String get securityTotpOff;
+
+  /// Account and security screens: securityTotpOffHint.
+  ///
+  /// In uk, this message translates to:
+  /// **'Код із застосунку-автентифікатора під час входу'**
+  String get securityTotpOffHint;
+
+  /// Account and security screens: securityTotpOn.
+  ///
+  /// In uk, this message translates to:
+  /// **'Увімкнено'**
+  String get securityTotpOn;
+
+  /// Unused recovery codes.
+  ///
+  /// In uk, this message translates to:
+  /// **'Резервних кодів залишилось: {count}'**
+  String securityRecoveryCodesLeft(int count);
+
+  /// Account and security screens: securityTotpEnable.
+  ///
+  /// In uk, this message translates to:
+  /// **'Увімкнути'**
+  String get securityTotpEnable;
+
+  /// Account and security screens: securityTotpDisable.
+  ///
+  /// In uk, this message translates to:
+  /// **'Вимкнути 2FA'**
+  String get securityTotpDisable;
+
+  /// Account and security screens: securityTotpDisableConfirm.
+  ///
+  /// In uk, this message translates to:
+  /// **'Вхід знову буде лише за паролем. Підтвердіть кодом із застосунку або паролем.'**
+  String get securityTotpDisableConfirm;
+
+  /// Account and security screens: securityTotpOrPassword.
+  ///
+  /// In uk, this message translates to:
+  /// **'Або пароль'**
+  String get securityTotpOrPassword;
+
+  /// Account and security screens: securityTotpRegenerate.
+  ///
+  /// In uk, this message translates to:
+  /// **'Нові резервні коди'**
+  String get securityTotpRegenerate;
+
+  /// Account and security screens: securityTotpRegenerateHint.
+  ///
+  /// In uk, this message translates to:
+  /// **'Старі коди перестануть діяти. Введіть код із застосунку.'**
+  String get securityTotpRegenerateHint;
+
+  /// Account and security screens: securityTotpCode.
+  ///
+  /// In uk, this message translates to:
+  /// **'Код із застосунку'**
+  String get securityTotpCode;
+
+  /// Account and security screens: securityTotpCodeInvalid.
+  ///
+  /// In uk, this message translates to:
+  /// **'Шість цифр'**
+  String get securityTotpCodeInvalid;
+
+  /// Account and security screens: securityPasskeys.
+  ///
+  /// In uk, this message translates to:
+  /// **'Ключі доступу'**
+  String get securityPasskeys;
+
+  /// Account and security screens: securityPasskeysEmpty.
+  ///
+  /// In uk, this message translates to:
+  /// **'Ключів доступу ще немає'**
+  String get securityPasskeysEmpty;
+
+  /// Account and security screens: securityPasskeyAdd.
+  ///
+  /// In uk, this message translates to:
+  /// **'Додати ключ доступу'**
+  String get securityPasskeyAdd;
+
+  /// Account and security screens: securityPasskeyName.
+  ///
+  /// In uk, this message translates to:
+  /// **'Назва, наприклад MacBook'**
+  String get securityPasskeyName;
+
+  /// When the passkey was added.
+  ///
+  /// In uk, this message translates to:
+  /// **'Додано {date}'**
+  String securityPasskeyCreated(String date);
+
+  /// Name of the passkey.
+  ///
+  /// In uk, this message translates to:
+  /// **'Видалити ключ доступу «{name}»? Увійти з ним більше не вийде.'**
+  String securityPasskeyDeleteConfirm(String name);
+
+  /// Account and security screens: totpSetupTitle.
+  ///
+  /// In uk, this message translates to:
+  /// **'Увімкнення 2FA'**
+  String get totpSetupTitle;
+
+  /// Account and security screens: totpSetupScan.
+  ///
+  /// In uk, this message translates to:
+  /// **'Відскануйте QR-код застосунком-автентифікатором або введіть ключ вручну, потім введіть код, який він покаже.'**
+  String get totpSetupScan;
+
+  /// Account and security screens: totpSetupQrLabel.
+  ///
+  /// In uk, this message translates to:
+  /// **'QR-код для застосунку-автентифікатора'**
+  String get totpSetupQrLabel;
+
+  /// Account and security screens: totpSetupManualKey.
+  ///
+  /// In uk, this message translates to:
+  /// **'Ключ для введення вручну'**
+  String get totpSetupManualKey;
+
+  /// Account and security screens: recoveryCodesTitle.
+  ///
+  /// In uk, this message translates to:
+  /// **'Резервні коди'**
+  String get recoveryCodesTitle;
+
+  /// Account and security screens: recoveryCodesHint.
+  ///
+  /// In uk, this message translates to:
+  /// **'Збережіть ці коди в надійному місці: кожен один раз відкриває вхід без телефона. Більше їх не буде показано.'**
+  String get recoveryCodesHint;
+
+  /// Account and security screens: accountProfile.
+  ///
+  /// In uk, this message translates to:
+  /// **'Профіль'**
+  String get accountProfile;
+
+  /// Account and security screens: accountDisplayName.
+  ///
+  /// In uk, this message translates to:
+  /// **'Ім\'я'**
+  String get accountDisplayName;
+
+  /// Account and security screens: accountLocale.
+  ///
+  /// In uk, this message translates to:
+  /// **'Мова'**
+  String get accountLocale;
+
+  /// Account and security screens: accountCurrency.
+  ///
+  /// In uk, this message translates to:
+  /// **'Валюта підсумків'**
+  String get accountCurrency;
+
+  /// Account and security screens: accountCurrencyInvalid.
+  ///
+  /// In uk, this message translates to:
+  /// **'Код валюти з трьох латинських літер, наприклад UAH'**
+  String get accountCurrencyInvalid;
+
+  /// Account and security screens: accountSaved.
+  ///
+  /// In uk, this message translates to:
+  /// **'Збережено'**
+  String get accountSaved;
+
+  /// Account and security screens: accountConflict.
+  ///
+  /// In uk, this message translates to:
+  /// **'Акаунт змінено в іншому місці. Дані оновлено — внесіть зміни ще раз.'**
+  String get accountConflict;
+
+  /// Account and security screens: accountEmail.
+  ///
+  /// In uk, this message translates to:
+  /// **'Пошта'**
+  String get accountEmail;
+
+  /// The new address awaiting its link.
+  ///
+  /// In uk, this message translates to:
+  /// **'Очікує підтвердження: {email}. Відкрийте посилання з листа.'**
+  String accountEmailPending(String email);
+
+  /// Account and security screens: accountEmailChange.
+  ///
+  /// In uk, this message translates to:
+  /// **'Змінити пошту'**
+  String get accountEmailChange;
+
+  /// Account and security screens: accountEmailNew.
+  ///
+  /// In uk, this message translates to:
+  /// **'Нова пошта'**
+  String get accountEmailNew;
+
+  /// Account and security screens: accountReauthHint.
+  ///
+  /// In uk, this message translates to:
+  /// **'Підтвердіть, що це ви: пароль і, якщо 2FA увімкнено, код або резервний код.'**
+  String get accountReauthHint;
+
+  /// Account and security screens: accountReauthCode.
+  ///
+  /// In uk, this message translates to:
+  /// **'Код 2FA або резервний код'**
+  String get accountReauthCode;
+
+  /// Account and security screens: accountExport.
+  ///
+  /// In uk, this message translates to:
+  /// **'Експорт даних'**
+  String get accountExport;
+
+  /// Account and security screens: accountExportHint.
+  ///
+  /// In uk, this message translates to:
+  /// **'Архів усіх ваших даних у форматі JSON.'**
+  String get accountExportHint;
+
+  /// Account and security screens: accountExportStart.
+  ///
+  /// In uk, this message translates to:
+  /// **'Почати експорт'**
+  String get accountExportStart;
+
+  /// Account and security screens: accountExportPending.
+  ///
+  /// In uk, this message translates to:
+  /// **'Готуємо архів…'**
+  String get accountExportPending;
+
+  /// Account and security screens: accountExportReady.
+  ///
+  /// In uk, this message translates to:
+  /// **'Архів готовий'**
+  String get accountExportReady;
+
+  /// When the download link expires.
+  ///
+  /// In uk, this message translates to:
+  /// **'Архів готовий, доступний до {date}'**
+  String accountExportReadyUntil(String date);
+
+  /// Account and security screens: accountExportDownload.
+  ///
+  /// In uk, this message translates to:
+  /// **'Завантажити'**
+  String get accountExportDownload;
+
+  /// Account and security screens: accountExportFailed.
+  ///
+  /// In uk, this message translates to:
+  /// **'Експорт не вдався. Спробуйте ще раз.'**
+  String get accountExportFailed;
+
+  /// Account and security screens: accountExportExpired.
+  ///
+  /// In uk, this message translates to:
+  /// **'Архів більше недоступний. Почніть новий експорт.'**
+  String get accountExportExpired;
+
+  /// Account and security screens: accountDanger.
+  ///
+  /// In uk, this message translates to:
+  /// **'Видалення акаунта'**
+  String get accountDanger;
+
+  /// Account and security screens: accountDelete.
+  ///
+  /// In uk, this message translates to:
+  /// **'Видалити акаунт'**
+  String get accountDelete;
+
+  /// Account and security screens: accountDeleteWarning.
+  ///
+  /// In uk, this message translates to:
+  /// **'Акаунт і всі дані буде видалено назавжди. Цю дію не можна скасувати.'**
+  String get accountDeleteWarning;
+
+  /// The account's email address.
+  ///
+  /// In uk, this message translates to:
+  /// **'Щоб підтвердити, введіть {email}'**
+  String accountDeleteType(String email);
+
+  /// Account and security screens: languageUk.
+  ///
+  /// In uk, this message translates to:
+  /// **'Українська'**
+  String get languageUk;
+
+  /// Account and security screens: languageRu.
+  ///
+  /// In uk, this message translates to:
+  /// **'Русский'**
+  String get languageRu;
+
+  /// Account and security screens: languageEn.
+  ///
+  /// In uk, this message translates to:
+  /// **'English'**
+  String get languageEn;
+
+  /// Name of the current plan.
+  ///
+  /// In uk, this message translates to:
+  /// **'Тариф: {name}'**
+  String subscriptionPlan(String name);
+
+  /// Account and security screens: subscriptionEntitlements.
+  ///
+  /// In uk, this message translates to:
+  /// **'Що входить'**
+  String get subscriptionEntitlements;
+
+  /// Account and security screens: entitlementProfilesMax.
+  ///
+  /// In uk, this message translates to:
+  /// **'Профілі'**
+  String get entitlementProfilesMax;
+
+  /// Account and security screens: entitlementConnectionsMax.
+  ///
+  /// In uk, this message translates to:
+  /// **'Підключення'**
+  String get entitlementConnectionsMax;
+
+  /// Account and security screens: entitlementConnectorsBusiness.
+  ///
+  /// In uk, this message translates to:
+  /// **'Бізнес-підключення'**
+  String get entitlementConnectorsBusiness;
+
+  /// Account and security screens: entitlementHistoryMonths.
+  ///
+  /// In uk, this message translates to:
+  /// **'Історія, місяців'**
+  String get entitlementHistoryMonths;
+
+  /// Account and security screens: entitlementSyncMinInterval.
+  ///
+  /// In uk, this message translates to:
+  /// **'Синхронізація не частіше ніж'**
+  String get entitlementSyncMinInterval;
+
+  /// Account and security screens: entitlementExports.
+  ///
+  /// In uk, this message translates to:
+  /// **'Формати вивантаження'**
+  String get entitlementExports;
+
+  /// Account and security screens: entitlementAiAnalyses.
+  ///
+  /// In uk, this message translates to:
+  /// **'AI-аналізи на місяць'**
+  String get entitlementAiAnalyses;
+
+  /// Account and security screens: entitlementInvestmentsRebalance.
+  ///
+  /// In uk, this message translates to:
+  /// **'Ребалансування портфеля'**
+  String get entitlementInvestmentsRebalance;
+
+  /// Account and security screens: entitlementUnlimited.
+  ///
+  /// In uk, this message translates to:
+  /// **'Без обмежень'**
+  String get entitlementUnlimited;
+
+  /// Account and security screens: entitlementYes.
+  ///
+  /// In uk, this message translates to:
+  /// **'Так'**
+  String get entitlementYes;
+
+  /// Account and security screens: entitlementNo.
+  ///
+  /// In uk, this message translates to:
+  /// **'Ні'**
+  String get entitlementNo;
+
+  /// Minutes.
+  ///
+  /// In uk, this message translates to:
+  /// **'{count} хв'**
+  String entitlementMinutes(int count);
+
+  /// Account and security screens: planOfferTitle.
+  ///
+  /// In uk, this message translates to:
+  /// **'Ліміт тарифу вичерпано'**
+  String get planOfferTitle;
+
+  /// Display name of the exceeded entitlement.
+  ///
+  /// In uk, this message translates to:
+  /// **'«{entitlement}» на вашому тарифі вичерпано. Більше дають тарифи нижче.'**
+  String planOfferMessage(String entitlement);
+
+  /// Account and security screens: planOfferMessageUnknown.
+  ///
+  /// In uk, this message translates to:
+  /// **'Ця дія не входить у ваш тариф.'**
+  String get planOfferMessageUnknown;
+
+  /// Account and security screens: planOfferSeePlans.
+  ///
+  /// In uk, this message translates to:
+  /// **'Мій тариф'**
+  String get planOfferSeePlans;
 }
 
 class _AppLocalizationsDelegate
