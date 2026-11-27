@@ -1,0 +1,139 @@
+{
+  "@@locale": "uk",
+  "appTitle": "Fynona",
+  "@appTitle": {
+    "description": "Application name."
+  },
+  "navOverview": "Огляд",
+  "@navOverview": {
+    "description": "Bottom bar and rail destination: home dashboard."
+  },
+  "navOperations": "Операції",
+  "@navOperations": {
+    "description": "Bottom bar and rail destination: transaction list."
+  },
+  "navAnalytics": "Аналітика",
+  "@navAnalytics": {
+    "description": "Bottom bar and rail destination: charts and reports."
+  },
+  "navMore": "Ще",
+  "@navMore": {
+    "description": "Bottom bar and rail destination: everything else."
+  },
+  "navLandmark": "Основна навігація",
+  "@navLandmark": {
+    "description": "Screen-reader name of the navigation landmark."
+  },
+  "profileAll": "Усі профілі",
+  "@profileAll": {
+    "description": "Profile context: the combined dashboard of every profile."
+  },
+  "profilePlaceholderPersonal": "Особистий",
+  "@profilePlaceholderPersonal": {
+    "description": "Placeholder profile name until profiles come from the API."
+  },
+  "profilePlaceholderBusiness": "ФОП",
+  "@profilePlaceholderBusiness": {
+    "description": "Placeholder business profile name until profiles come from the API."
+  },
+  "profileSwitcherLabel": "Профіль: {name}. Змінити профіль",
+  "@profileSwitcherLabel": {
+    "description": "Screen-reader label of the profile switcher button.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Усі профілі"
+      }
+    }
+  },
+  "profileSheetTitle": "Профіль",
+  "@profileSheetTitle": {
+    "description": "Title of the profile picker sheet."
+  },
+  "operationsSummary": "Усі рахунки · Цей місяць",
+  "@operationsSummary": {
+    "description": "Placeholder summary row above the operations list."
+  },
+  "operationsPlaceholderTitle": "Операція {number}",
+  "@operationsPlaceholderTitle": {
+    "description": "Placeholder operation row title until operations come from the API.",
+    "placeholders": {
+      "number": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+  "operationsPlaceholderSubtitle": "Демонстраційні дані",
+  "@operationsPlaceholderSubtitle": {
+    "description": "Placeholder operation row subtitle."
+  },
+  "overviewPlaceholder": "Тут будуть баланс, останні операції та віджети.",
+  "@overviewPlaceholder": {
+    "description": "Placeholder body of the overview screen."
+  },
+  "analyticsPlaceholder": "Тут будуть графіки та звіти.",
+  "@analyticsPlaceholder": {
+    "description": "Placeholder body of the analytics screen."
+  },
+  "moreProfiles": "Профілі",
+  "@moreProfiles": {
+    "description": "More: profiles section."
+  },
+  "moreConnections": "Підключення та рахунки",
+  "@moreConnections": {
+    "description": "More: connections section."
+  },
+  "moreCategories": "Категорії та правила",
+  "@moreCategories": {
+    "description": "More: categories section."
+  },
+  "moreReconciliation": "Звірка",
+  "@moreReconciliation": {
+    "description": "More: reconciliation section."
+  },
+  "moreInvestments": "Інвестиції",
+  "@moreInvestments": {
+    "description": "More: investments section."
+  },
+  "moreExports": "Вивантаження",
+  "@moreExports": {
+    "description": "More: exports section."
+  },
+  "moreSubscription": "Підписка",
+  "@moreSubscription": {
+    "description": "More: subscription section."
+  },
+  "moreSecurity": "Безпека",
+  "@moreSecurity": {
+    "description": "More: security section."
+  },
+  "moreAbout": "Про застосунок",
+  "@moreAbout": {
+    "description": "More: about section."
+  },
+  "moreAppearance": "Вигляд",
+  "@moreAppearance": {
+    "description": "More: appearance settings header."
+  },
+  "settingsNoGlass": "Без скла",
+  "@settingsNoGlass": {
+    "description": "Switch: opaque chrome instead of glass."
+  },
+  "settingsNoGlassHint": "Непрозорі панелі замість розмиття",
+  "@settingsNoGlassHint": {
+    "description": "Subtitle of the no-glass switch."
+  },
+  "settingsHighContrast": "Високий контраст",
+  "@settingsHighContrast": {
+    "description": "Switch: high-contrast theme."
+  },
+  "comingSoon": "Незабаром",
+  "@comingSoon": {
+    "description": "Message for sections that are not built yet."
+  },
+  "connectionLost": "Немає звʼязку з сервером",
+  "@connectionLost": {
+    "description": "Banner while the API circuit breaker is open (API-63)."
+  }
+}
