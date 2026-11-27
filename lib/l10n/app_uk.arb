@@ -135,5 +135,29 @@
   "connectionLost": "Немає звʼязку з сервером",
   "@connectionLost": {
     "description": "Banner while the API circuit breaker is open (API-63)."
+  },
+  "appOutdatedTitle": "Застосунок застарів",
+  "@appOutdatedTitle": {
+    "description": "Title of the blocking screen when the API contract of the app is no longer supported (API-12)"
+  },
+  "appOutdatedMessage": "Оновіть застосунок, щоб продовжити роботу.",
+  "@appOutdatedMessage": {
+    "description": "Body of the blocking «update the app» screen"
+  },
+  "appOutdatedReload": "Перезавантажити",
+  "@appOutdatedReload": {
+    "description": "Web only: button that reloads the page to get the new version"
+  },
+  "serverBehindTitle": "Сервіс оновлюється",
+  "@serverBehindTitle": {
+    "description": "Title of the blocking screen when the server runs an older contract minor (rollback or deploy)"
+  },
+  "serverBehindMessage": "Спробуйте пізніше.",
+  "@serverBehindMessage": {
+    "description": "Body of the blocking «service is updating» screen; never asks to update the app"
+  },
+  "serverBehindRetry": "Спробувати ще раз",
+  "@serverBehindRetry": {
+    "description": "Button that checks the server versions again"
   }
 }

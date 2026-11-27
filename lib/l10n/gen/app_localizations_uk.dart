@@ -106,4 +106,22 @@ class AppLocalizationsUk extends AppLocalizations {
 
   @override
   String get connectionLost => 'Немає звʼязку з сервером';
+
+  @override
+  String get appOutdatedTitle => 'Застосунок застарів';
+
+  @override
+  String get appOutdatedMessage => 'Оновіть застосунок, щоб продовжити роботу.';
+
+  @override
+  String get appOutdatedReload => 'Перезавантажити';
+
+  @override
+  String get serverBehindTitle => 'Сервіс оновлюється';
+
+  @override
+  String get serverBehindMessage => 'Спробуйте пізніше.';
+
+  @override
+  String get serverBehindRetry => 'Спробувати ще раз';
 }

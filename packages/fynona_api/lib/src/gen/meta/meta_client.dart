@@ -3,18 +3,17 @@
 import 'package:dio/dio.dart' show Dio, Options, ResponseType, CancelToken;
 
 import 'models/meta.dart' as models show Meta;
-import 'models/platform.dart' as models show Platform;
 
 class MetaClient {
   MetaClient(this._transport);
 
   final Dio _transport;
 
-  /// Server version, API version, minimum client versions and feature flags (API-12).
+  /// Server version, contract versions, environment and feature flags (API-12).
   ///
-  /// Clients send `User-Agent: Fynona/<version> (<platform>)`. A client older
-  /// than the minimum version of its platform gets `426` with an update link
-  /// on every `/v1` route, this one included. Other user agents pass.
+  /// A client is compatible when its contract version has the major of
+  /// `contract_version` and is not below `min_contract_version`. This route
+  /// never checks `X-Fynona-API`, so an outdated client can always read it.
   Future<models.Meta> getMeta({
     Map<String, Object?> extra = const {
       "openapi.servers": [
@@ -31,8 +30,12 @@ class MetaClient {
     /// Trace id; the server generates one when absent or invalid (API-21).
     String? xRequestId,
 
-    /// Return the minimum client version of this platform only.
-    models.Platform? platform,
+    /// Contract version (SemVer `info.version`) the client was built against
+    /// (API-12). Absent passes. Not SemVer is `400`; another major than the
+    /// served `contract_version` or a version below `min_contract_version` is
+    /// `426` with code `api_version_unsupported`. A newer version of the same
+    /// major passes. `GET /v1/meta` and `GET /v1/openapi.json` ignore it.
+    String? xFynonaApi,
   }) async {
     final _options = (options ?? Options()).copyWith(
       method: "GET",
@@ -42,21 +45,21 @@ class MetaClient {
         ...?options?.headers,
         'Accept': "application/json",
         if (xRequestId != null) "X-Request-ID": xRequestId,
+        if (xFynonaApi != null) "X-Fynona-API": xFynonaApi,
       },
       validateStatus: (status) => status != null && (status == 200),
     );
     final response = await _transport.request<dynamic>(
       "/v1/meta",
       options: _options,
-      queryParameters: <String, Object?>{
-        if (platform != null) "platform": platform.toJson(),
-      },
       cancelToken: cancelToken,
     );
     return models.Meta.fromJson(response.data as Map<String, Object?>);
   }
 
   /// This specification as JSON (API-3).
+  ///
+  /// Never checks `X-Fynona-API`, like `GET /v1/meta`.
   Future<Map<String, Object?>> getOpenAPI({
     Map<String, Object?> extra = const {
       "openapi.servers": [
@@ -72,6 +75,13 @@ class MetaClient {
 
     /// Trace id; the server generates one when absent or invalid (API-21).
     String? xRequestId,
+
+    /// Contract version (SemVer `info.version`) the client was built against
+    /// (API-12). Absent passes. Not SemVer is `400`; another major than the
+    /// served `contract_version` or a version below `min_contract_version` is
+    /// `426` with code `api_version_unsupported`. A newer version of the same
+    /// major passes. `GET /v1/meta` and `GET /v1/openapi.json` ignore it.
+    String? xFynonaApi,
   }) async {
     final _options = (options ?? Options()).copyWith(
       method: "GET",
@@ -81,6 +91,7 @@ class MetaClient {
         ...?options?.headers,
         'Accept': "application/json",
         if (xRequestId != null) "X-Request-ID": xRequestId,
+        if (xFynonaApi != null) "X-Fynona-API": xFynonaApi,
       },
       validateStatus: (status) => status != null && (status == 200),
     );

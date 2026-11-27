@@ -30,5 +30,11 @@
   "settingsNoGlassHint": "Opaque bars instead of blur",
   "settingsHighContrast": "High contrast",
   "comingSoon": "Coming soon",
-  "connectionLost": "No connection to the server"
+  "connectionLost": "No connection to the server",
+  "appOutdatedTitle": "The app is out of date",
+  "appOutdatedMessage": "Update the app to keep using it.",
+  "appOutdatedReload": "Reload",
+  "serverBehindTitle": "The service is updating",
+  "serverBehindMessage": "Please try again later.",
+  "serverBehindRetry": "Try again"
 }

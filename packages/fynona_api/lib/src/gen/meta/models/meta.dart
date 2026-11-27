@@ -10,11 +10,14 @@ class Meta {
     /// Major API version (API-10).
     required this.apiVersion,
 
+    /// SemVer of the served contract, this document's `info.version` (API-12).
+    required this.contractVersion,
+
+    /// Lowest contract version accepted in `X-Fynona-API`; same major as `contract_version` (API-12).
+    required this.minContractVersion,
+
     /// Deployment environment (PLT-24).
     required this.environment,
-
-    /// Minimum supported client version per platform (PLT-11); a platform without an entry has no minimum.
-    required this.minClientVersions,
 
     /// Feature flags by name; unknown flags must be ignored.
     required this.features,
@@ -27,9 +30,9 @@ class Meta {
   factory Meta.fromJson(Map<String, Object?> json) => Meta(
     serverVersion: json["server_version"] as String,
     apiVersion: json["api_version"] as String,
+    contractVersion: json["contract_version"] as String,
+    minContractVersion: json["min_contract_version"] as String,
     environment: Environment.fromJson(json["environment"]),
-    minClientVersions: (json["min_client_versions"] as Map<String, Object?>)
-        .map((key, item) => MapEntry(key, item as String)),
     features: (json["features"] as Map<String, Object?>).map(
       (key, item) => MapEntry(key, item as bool),
     ),
@@ -46,11 +49,14 @@ class Meta {
   /// Major API version (API-10).
   final String apiVersion;
 
+  /// SemVer of the served contract, this document's `info.version` (API-12).
+  final String contractVersion;
+
+  /// Lowest contract version accepted in `X-Fynona-API`; same major as `contract_version` (API-12).
+  final String minContractVersion;
+
   /// Deployment environment (PLT-24).
   final Environment environment;
-
-  /// Minimum supported client version per platform (PLT-11); a platform without an entry has no minimum.
-  final Map<String, String> minClientVersions;
 
   /// Feature flags by name; unknown flags must be ignored.
   final Map<String, bool> features;
@@ -61,8 +67,9 @@ class Meta {
   static const _knownKeys = <String>{
     "server_version",
     "api_version",
+    "contract_version",
+    "min_contract_version",
     "environment",
-    "min_client_versions",
     "features",
     "update_url",
   };
@@ -74,10 +81,9 @@ class Meta {
       if (!_knownKeys.contains(entry.key)) entry.key: entry.value,
     "server_version": this.serverVersion,
     "api_version": this.apiVersion,
+    "contract_version": this.contractVersion,
+    "min_contract_version": this.minContractVersion,
     "environment": this.environment.toJson(),
-    "min_client_versions": this.minClientVersions.map(
-      (key, item) => MapEntry(key, item),
-    ),
     "features": this.features.map((key, item) => MapEntry(key, item)),
     "update_url": this.updateUrl,
   };

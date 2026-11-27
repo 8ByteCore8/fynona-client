@@ -30,5 +30,11 @@
   "settingsNoGlassHint": "Непрозрачные панели вместо размытия",
   "settingsHighContrast": "Высокий контраст",
   "comingSoon": "Скоро",
-  "connectionLost": "Нет связи с сервером"
+  "connectionLost": "Нет связи с сервером",
+  "appOutdatedTitle": "Приложение устарело",
+  "appOutdatedMessage": "Обновите приложение, чтобы продолжить работу.",
+  "appOutdatedReload": "Перезагрузить",
+  "serverBehindTitle": "Сервис обновляется",
+  "serverBehindMessage": "Попробуйте позже.",
+  "serverBehindRetry": "Повторить"
 }

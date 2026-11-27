@@ -4,6 +4,7 @@
 library;
 
 export 'src/circuit_breaker.dart';
+export 'src/contract.dart';
 export 'src/decimal.dart';
 export 'src/errors.dart';
 export 'src/gen/fynona_api.dart';

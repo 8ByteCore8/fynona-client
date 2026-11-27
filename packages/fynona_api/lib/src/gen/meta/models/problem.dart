@@ -18,7 +18,7 @@ class Problem {
     required this.requestId,
     this.errors,
 
-    /// Where to get a supported client; set on `client.upgrade_required`.
+    /// Where to get a supported client; set on `api_version_unsupported`.
     this.updateUrl,
     this.additionalProperties = const {},
   });
@@ -61,7 +61,7 @@ class Problem {
 
   final List<FieldError>? errors;
 
-  /// Where to get a supported client; set on `client.upgrade_required`.
+  /// Where to get a supported client; set on `api_version_unsupported`.
   final String? updateUrl;
 
   static const _knownKeys = <String>{
