@@ -31,6 +31,7 @@ jobs:
         run: |
           flutter pub get
           flutter pub get --directory packages/fynona_ui
+          dart pub get --directory packages/fynona_core
           dart pub get --directory packages/fynona_api
       - name: Generated API models are up to date (swagger_parser, ADR-001)
         working-directory: packages/fynona_api
@@ -54,9 +55,15 @@ jobs:
       - name: Analyze fynona_ui
         working-directory: packages/fynona_ui
         run: flutter analyze
+      - name: Analyze fynona_core
+        working-directory: packages/fynona_core
+        run: dart analyze
       - name: Analyze fynona_api
         working-directory: packages/fynona_api
         run: dart analyze
+      - name: Test fynona_core (incl. no API path, no double for money)
+        working-directory: packages/fynona_core
+        run: dart test
       - name: Test fynona_api (the e2e is skipped without FYNONA_API_URL)
         working-directory: packages/fynona_api
         run: dart test

@@ -1,4 +1,4 @@
-import 'package:fynona_api/fynona_api.dart';
+import 'package:fynona_core/fynona_core.dart';
 import 'package:test/test.dart';
 
 import 'support/fakes.dart';
@@ -93,13 +93,9 @@ void main() {
       final sent = adapter.requests.length;
 
       await expectLater(
-        t.transport.call((a) => a.meta.getMeta()),
+        getFrom(t.transport),
         throwsA(
-          isA<CircuitOpenException>().having(
-            (e) => e.group,
-            'group',
-            'v1/meta',
-          ),
+          isA<CircuitOpenException>().having((e) => e.group, 'group', 'x/meta'),
         ),
       );
       expect(adapter.requests, hasLength(sent));
@@ -110,23 +106,23 @@ void main() {
     test('groups are independent; recovery closes the breaker', () async {
       var down = true;
       final adapter = FakeAdapter([
-        (request) => down || request.path == '/v1/meta'
+        (request) => down || request.path == metaPath
             ? networkError()(request)
-            : status(200, json: metaJson)(request),
+            : status(200, json: metaWith())(request),
       ]);
       final t = fakeTransport(adapter);
       await tripMetaBreaker(t.transport);
       down = false;
-      await t.transport.call((a) => a.meta.getOpenAPI());
+      await getFrom(t.transport, '/x/other');
 
       final breaker = (t.transport.dio.httpClientAdapter as ResilientAdapter)
-          .breakerFor('v1/meta');
+          .breakerFor('x/meta');
       expect(breaker.state, CircuitState.open);
       t.clock.advance(const Duration(seconds: 15));
       // The probe still fails: open again, no retries spent on it.
       final before = adapter.requests.length;
       await expectLater(
-        t.transport.call((a) => a.meta.getMeta()),
+        getFrom(t.transport),
         throwsA(isA<ApiNetworkException>()),
       );
       expect(adapter.requests.length - before, 1);
@@ -138,29 +134,26 @@ void main() {
       final adapter = FakeAdapter([
         (request) => down
             ? networkError()(request)
-            : status(200, json: metaJson)(request),
+            : status(200, json: metaWith())(request),
       ]);
       final t = fakeTransport(adapter);
       await tripMetaBreaker(t.transport);
       expect(t.transport.isOffline, isTrue);
       down = false;
       t.clock.advance(const Duration(seconds: 15));
-      await t.transport.call((a) => a.meta.getMeta());
+      await getFrom(t.transport);
       expect(t.transport.isOffline, isFalse);
     });
   });
 }
 
-/// Fails `GET /v1/meta` until its breaker opens: the first call spends the
+/// Fails `GET /x/meta` until its breaker opens: the first call spends the
 /// three reserve retries, then the budget is empty, so 7 calls make the 10
 /// failures of the minimum volume.
-Future<void> tripMetaBreaker(ApiTransport transport) async {
+Future<void> tripMetaBreaker(HttpTransport transport) async {
   var calls = 0;
   while (!transport.isOffline) {
-    await expectLater(
-      transport.call((a) => a.meta.getMeta()),
-      throwsA(isA<ApiNetworkException>()),
-    );
+    await expectLater(getFrom(transport), throwsA(isA<ApiNetworkException>()));
     calls++;
   }
   expect(calls, 7);
