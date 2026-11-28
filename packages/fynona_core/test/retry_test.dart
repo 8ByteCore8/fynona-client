@@ -1,4 +1,4 @@
-import 'package:fynona_api/fynona_api.dart';
+import 'package:fynona_core/fynona_core.dart';
 import 'package:test/test.dart';
 
 import 'support/fakes.dart';
@@ -53,11 +53,11 @@ void main() {
       final adapter = FakeAdapter([
         status(503),
         status(503),
-        status(200, json: metaJson),
+        status(200, json: metaWith()),
       ]);
       final t = fakeTransport(adapter);
-      final meta = await t.transport.call((api) => api.meta.getMeta());
-      expect(meta.apiVersion, 'v1');
+      final meta = await getFrom(t.transport);
+      expect(meta.statusCode, 200);
       expect(adapter.requests, hasLength(3));
       expect(t.sleeps, [
         const Duration(milliseconds: 100),
@@ -69,9 +69,9 @@ void main() {
       test('GET: $code is retried', () async {
         final adapter = FakeAdapter([
           status(code),
-          status(200, json: metaJson),
+          status(200, json: metaWith()),
         ]);
-        await fakeTransport(adapter).transport.call((a) => a.meta.getMeta());
+        await getFrom(fakeTransport(adapter).transport);
         expect(adapter.requests, hasLength(2));
       });
     }
@@ -80,7 +80,7 @@ void main() {
       test('GET: $code is not retried', () async {
         final adapter = FakeAdapter([status(code)]);
         await expectLater(
-          fakeTransport(adapter).transport.call((a) => a.meta.getMeta()),
+          getFrom(fakeTransport(adapter).transport),
           throwsA(isA<ApiHttpException>()),
         );
         expect(adapter.requests, hasLength(1));
@@ -90,9 +90,9 @@ void main() {
     test('network errors are retried', () async {
       final adapter = FakeAdapter([
         networkError(),
-        status(200, json: metaJson),
+        status(200, json: metaWith()),
       ]);
-      await fakeTransport(adapter).transport.call((a) => a.meta.getMeta());
+      await getFrom(fakeTransport(adapter).transport);
       expect(adapter.requests, hasLength(2));
     });
 
@@ -100,7 +100,7 @@ void main() {
       final adapter = FakeAdapter([networkError()]);
       final t = fakeTransport(adapter);
       await expectLater(
-        t.transport.call((a) => a.meta.getMeta()),
+        getFrom(t.transport),
         throwsA(isA<ApiNetworkException>()),
       );
       expect(adapter.requests, hasLength(4));
@@ -110,10 +110,10 @@ void main() {
     test('Retry-After from a 429 is the wait', () async {
       final adapter = FakeAdapter([
         status(429, headers: {'Retry-After': '3'}),
-        status(200, json: metaJson),
+        status(200, json: metaWith()),
       ]);
       final t = fakeTransport(adapter);
-      await t.transport.call((a) => a.meta.getMeta());
+      await getFrom(t.transport);
       expect(t.sleeps, [const Duration(seconds: 3)]);
     });
 
@@ -123,7 +123,7 @@ void main() {
         final adapter = FakeAdapter([status(503)]);
         final t = fakeTransport(adapter);
         await expectLater(
-          t.transport.call((api) => t.transport.dio.head<void>('/v1/meta')),
+          t.transport.call(() => t.transport.dio.head<void>(metaPath)),
           throwsA(isA<ApiHttpException>()),
         );
         expect(adapter.requests, hasLength(1));
@@ -137,7 +137,7 @@ void main() {
         status(201, json: {}),
       ]);
       final t = fakeTransport(adapter);
-      await t.transport.dio.post<void>('/v1/things', data: {'name': 'x'});
+      await t.transport.dio.post<void>('/x/things', data: {'name': 'x'});
       expect(adapter.requests, hasLength(3));
       final keys = adapter.requests.map((r) => r.headers['Idempotency-Key']);
       expect(keys.toSet(), hasLength(1));
@@ -191,10 +191,10 @@ void main() {
     test('healthy transport traffic keeps the budget bounded', () async {
       final clock = FakeClock();
       final budget = RetryBudget(now: clock.now);
-      final adapter = FakeAdapter([status(200, json: metaJson)]);
+      final adapter = FakeAdapter([status(200, json: metaWith())]);
       final t = fakeTransport(adapter, budget: budget, clock: clock);
       for (var i = 0; i < 300; i++) {
-        await t.transport.call((a) => a.meta.getMeta());
+        await getFrom(t.transport);
         clock.advance(const Duration(seconds: 1));
       }
       expect(adapter.requests, hasLength(300));
@@ -206,10 +206,7 @@ void main() {
       final budget = RetryBudget(now: clock.now, minRetries: 0);
       final adapter = FakeAdapter([status(503)]);
       final t = fakeTransport(adapter, budget: budget, clock: clock);
-      await expectLater(
-        t.transport.call((a) => a.meta.getMeta()),
-        throwsA(isA<ApiHttpException>()),
-      );
+      await expectLater(getFrom(t.transport), throwsA(isA<ApiHttpException>()));
       expect(adapter.requests, hasLength(1));
       expect(t.sleeps, isEmpty);
     });

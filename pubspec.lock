@@ -244,6 +244,13 @@ packages:
       relative: true
     source: path
     version: "0.1.0"
+  fynona_core:
+    dependency: transitive
+    description:
+      path: "packages/fynona_core"
+      relative: true
+    source: path
+    version: "0.1.0"
   fynona_ui:
     dependency: "direct main"
     description:

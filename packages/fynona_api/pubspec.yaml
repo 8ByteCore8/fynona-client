@@ -8,6 +8,8 @@ environment:
 
 dependencies:
   dio: ^5.9.0
+  fynona_core:
+    path: ../fynona_core
 
 dev_dependencies:
   crypto: ^3.0.6
@@ -28,8 +30,8 @@ swagger_parser:
       - type: string
         format: decimal
         dart_type: WireDecimal
-        import: package:fynona_api/src/decimal.dart
+        import: package:fynona_core/fynona_core.dart
         codec:
-          import: package:fynona_api/src/decimal.dart
+          import: package:fynona_core/fynona_core.dart
           from_json: wireDecimalFromJson
           to_json: wireDecimalToJson

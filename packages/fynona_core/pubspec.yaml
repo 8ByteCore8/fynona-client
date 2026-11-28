@@ -1,0 +1,14 @@
+name: fynona_core
+description: "Fynona network core: resilient transport, typed errors, contract check, sign-in session and the wire decimal, without any API path or generated model."
+version: 0.1.0
+publish_to: 'none'
+
+environment:
+  sdk: ^3.14.0
+
+dependencies:
+  dio: ^5.9.0
+
+dev_dependencies:
+  lints: ^6.0.0
+  test: ^1.26.0

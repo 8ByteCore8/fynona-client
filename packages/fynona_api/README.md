@@ -1,6 +1,9 @@
 # fynona_api
 
-Pure Dart client of the Fynona public API (no Flutter import; runs under `dart test`).
+Pure Dart client of the Fynona public API (no Flutter import; runs under `dart test`):
+the generated models and the public routes and rules over `fynona_core`
+(`../fynona_core`), whose public API `lib/fynona_api.dart` re-exports, so the app
+imports only this package.
 
 ## Models
 
@@ -11,61 +14,41 @@ with the settings in `pubspec.yaml`; never edit it by hand:
 dart run swagger_parser   # after every spec change; CI fails when the output differs
 ```
 
-Decimal strings (`type: string, format: decimal`) map to `WireDecimal`
-(`lib/src/decimal.dart`), which keeps the wire string and its scale: `"-100.00"`
-re-serializes as `"-100.00"`. No money, quantity, rate or price is ever a `double`
-(`test/money_test.dart` checks the sources).
+Decimal strings (`type: string, format: decimal`) map to the core's `WireDecimal`,
+which keeps the wire string and its scale: `"-100.00"` re-serializes as `"-100.00"`.
+No money, quantity, rate or price is ever a `double` (`test/money_test.dart` checks
+every source here; the core checks its own).
 
 ## Transport
 
-`ApiTransport` wraps the generated clients in dio with `ResilientAdapter`:
+`ApiTransport` is the core's `HttpTransport` (headers, retries, budget, breakers,
+timeouts, typed errors: see the `fynona_core` README) plus the generated clients
+(`api`, `call((api) => …)`) and the public rules:
 
-| Rule | Value |
-|---|---|
-| Headers | `X-Request-ID` (UUIDv7), `User-Agent: Fynona/<version> (<platform>)`, `X-Fynona-API: <contractVersion>` (API-12); `Idempotency-Key` (UUIDv7) on POST/PUT/PATCH/DELETE, reused on every retry |
-| Retry (API-60, API-61) | GET and requests with `Idempotency-Key`; network errors, 408, 429, 502, 503, 504; `Retry-After` (seconds) wins, else full jitter base 200 ms, cap 10 s; at most 3 retries |
-| Retry budget (API-62) | retries ≤ 10 % of primary requests in a 60 s window, reserve of 3 |
-| Circuit breaker (API-63) | per group (first two path segments, e.g. `v1/meta`): opens above 50 % failures over ≥ 10 outcomes in 30 s; one probe after 15 s |
-| Timeouts (API-64) | connect 10 s, read 30 s |
-
-`ApiTransport.call` throws typed `ApiException`s: `ApiProblemException` (`code`,
-`requestId`), `UpgradeRequiredException` (426, `updateUrl`), `ApiHttpException`,
-`ApiNetworkException`, `CircuitOpenException`, `ContractVersionException`. `isOffline`
-and `offlineChanges` report whether any breaker is not closed.
-
-`Idempotency-Key` is left out on the routes exempt from API-20: every `/v1/auth/*`
-route, `DELETE /v1/me` and `POST /v1/me/email` (`takesNoIdempotencyKey`); like any
-POST without a key, they are never retried.
+- `X-Fynona-API` declares `contractVersion` (below);
+- `Idempotency-Key` is left out on the routes exempt from API-20: every `/v1/auth/*`
+  route, `DELETE /v1/me` and `POST /v1/me/email` (`takesNoIdempotencyKey`); like any
+  POST without a key, they are never retried;
+- a `402` with code `entitlement.exceeded` is an `EntitlementExceededException` and is
+  also emitted on `entitlementRejections` (MON-4).
 
 ## Session (SEC-4, SEC-5)
 
-`AuthSession` (`lib/src/auth.dart`) runs over a transport: `login` returns
-`SignedIn` or `MfaRequired` (the `202` challenge, finished by `completeMfa` with a
-TOTP or recovery code), `loginWithPasskey`, `restore`, `refresh`, `logout`. It adds
-`Authorization: Bearer` to authenticated requests; a `401` refreshes once (single
-flight) and repeats the request. A refused refresh (any 4xx but 408, 426, 429)
-signs out; a refresh without a connection keeps the session. `TokenMode.body` keeps
-the refresh token in a `RefreshTokenStore`; `TokenMode.cookie` (web) asks for
-`token_delivery: cookie`, sends every request with browser credentials and never
-sees the refresh token; there `logout` without an access token in memory trades
-the cookie for one first, so the server clears the cookie. A store that fails on
-read or clear still ends `restore` signed out; a store that fails on write keeps
-no access token, closes the new server session best-effort and rethrows.
+`AuthSession` (`lib/src/auth.dart`) is the core's session on `publicAuthRoutes`
+(`/v1/auth/*`, refresh cookie `fynona_refresh`) with the public models: `login` returns
+`SignedIn` (`TokenPair`) or `MfaRequired` (the `202` `MfaChallenge`, finished by
+`completeMfa` with a TOTP or recovery code), `loginWithPasskey`, `restore`, `refresh`,
+`logout`. The rules (one refresh for parallel `401`s, refused refresh signs out, store
+failures, logout with a stale token, `TokenMode.body` and `TokenMode.cookie`) are the
+core's; `test/session_routes_test.dart` runs them on the public routes and on a
+fictitious route set. The public API has no revoking `403` codes.
 
 ## Contract version (API-12)
 
 `contractVersion` (`lib/src/contract.dart`) is `info.version` of `api/openapi.yaml`,
 taken from the generated `FynonaApi.apiVersion`; regenerating after a spec change
-updates it. `ApiTransport.checkContract()` reads `GET /v1/meta` and returns a
-`ContractCompatibility`:
-
-| Verdict | When |
-|---|---|
-| `compatible` | same major, client ≥ `min_contract_version`, server minor ≥ client minor |
-| `clientOutdated` | another major, client < `min_contract_version` (full SemVer), `/v1/meta` 404 or 410, `426 api_version_unsupported` |
-| `serverBehind` | same major, server minor < client minor (rollback or deploy in progress) |
-
-A `contract_version` that is not SemVer throws `ContractVersionException`.
+updates it. `ApiTransport.checkContract()` reads `GET /v1/meta` and applies the core's
+`checkContract` rules (`compatible`, `clientOutdated`, `serverBehind`).
 `contractRejections` emits every `426 api_version_unsupported` on any route.
 
 ## Tests
@@ -83,8 +66,6 @@ next 30-second step, since a code is single-use), finishes an export, deletes th
 account and checks that sign-in then fails.
 
 `AccountCalls` (`lib/src/account.dart`) reads and writes `/v1/me` with its `ETag`
-(`Versioned`) and downloads an export archive as bytes. A `402` with code
-`entitlement.exceeded` is an `EntitlementExceededException` and is also emitted on
-`ApiTransport.entitlementRejections` (MON-4).
+(`Versioned`) and downloads an export archive as bytes.
 
 The server README («Sandbox against a local PostgreSQL») shows how to run one.
